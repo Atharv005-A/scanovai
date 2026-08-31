@@ -11,6 +11,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { CATEGORIES } from "./domain";
+import type { EvaluatedCheck, Summary } from "./rule-engine";
+
 
 const categoryValues = CATEGORIES.map((c) => c.value) as [string, ...string[]];
 
