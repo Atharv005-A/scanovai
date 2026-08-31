@@ -230,7 +230,7 @@ export const finalizeInspection = createServerFn({ method: "POST" })
     if (!checks || checks.length === 0)
       throw new Error("Run the compliance check before finalizing this inspection.");
 
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from("inspections")
       .update({
         status: "finalized",
@@ -238,8 +238,12 @@ export const finalizeInspection = createServerFn({ method: "POST" })
         finalized_at: new Date().toISOString(),
         inspector_notes: data.notes ?? null,
       })
-      .eq("id", data.inspectionId);
+      .eq("id", data.inspectionId)
+      .select("id");
     if (error) throw new Error("The inspection could not be finalized.");
+    // A row-level permission block returns no error, just zero updated rows.
+    if (!updated || updated.length === 0)
+      throw new Error("You are not allowed to finalize this inspection, or it is already finalized.");
 
     await audit(supabase, userId, "inspection.finalized", "inspection", data.inspectionId, {
       new_value: { review: !!data.needsSupervisorReview },
