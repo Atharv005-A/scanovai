@@ -511,3 +511,33 @@ export const trackPublicComplaint = createServerFn({ method: "POST" })
     if (!payload) return { complaint: null };
     return { complaint: payload as Record<string, any> };
   });
+
+/** Read-only rule library, straight from the active rule version. */
+export const publicRuleLibrary = createServerFn({ method: "GET" }).handler(async () => {
+  const { publicSupabase } = await import("./public.server");
+  const sb = publicSupabase();
+  const { data: version } = await sb
+    .from("rule_versions")
+    .select("id, version_label, source_document, effective_from")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!version) return { version: null, rules: [] };
+  const { data: rules } = await sb
+    .from("rule_definitions")
+    .select(
+      "id, rule_code, rule_number, title, requirement, check_type, field_key, applicable_categories, exceptions, source_section, source_page",
+    )
+    .eq("rule_version_id", version.id)
+    .eq("is_active", true)
+    .order("display_order");
+  return {
+    version: {
+      label: version.version_label as string,
+      source: (version.source_document as string | null) ?? null,
+      effective_from: (version.effective_from as string | null) ?? null,
+    },
+    rules: (rules ?? []) as Record<string, any>[],
+  };
+});
