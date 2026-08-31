@@ -28,6 +28,8 @@ export type NotificationKind =
   | "sync_failure"
   | "sync_complete"
   | "role_change"
+  | "role_request"
+  | "role_decision"
   | "system";
 
 export interface EmailStatus {

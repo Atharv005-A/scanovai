@@ -43,7 +43,7 @@ export const publicBarcodeLookup = createServerFn({ method: "POST" })
         product: null,
       };
     }
-    const p = payload as Record<string, unknown>;
+    const p = payload as Record<string, any>;
     return {
       rateLimited: false as const,
       message: null,
@@ -404,7 +404,7 @@ export const submitPublicComplaint = createServerFn({ method: "POST" })
     }
 
     // Advisory AI triage. It may never decide, close or reject a complaint.
-    let triage: Record<string, unknown> | null = null;
+    let triage: Record<string, any> | null = null;
     try {
       const { triageComplaint } = await import("./ai.server");
       const result = await triageComplaint({
@@ -507,5 +507,5 @@ export const trackPublicComplaint = createServerFn({ method: "POST" })
     const sb = publicSupabase();
     const { data: payload } = await sb.rpc("track_complaint", { _token: data.token });
     if (!payload) return { complaint: null };
-    return { complaint: payload as Record<string, unknown> };
+    return { complaint: payload as Record<string, any> };
   });

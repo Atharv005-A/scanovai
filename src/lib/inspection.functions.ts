@@ -16,7 +16,7 @@ import { CATEGORIES, FIELD_DEFS, FIELD_LABELS } from "./domain";
 
 type Sb = {
   from: (t: string) => any;
-  rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: any; error: any }>;
+  rpc: (fn: string, args?: Record<string, any>) => Promise<{ data: any; error: any }>;
   storage: any;
 };
 
@@ -793,7 +793,7 @@ export const generateInspectionReport = createServerFn({ method: "POST" })
       (declarations ?? []) as never,
     );
 
-    let batch: Record<string, unknown> | null = null;
+    let batch: Record<string, any> | null = null;
     if (inspection.batch_id) {
       const { data: b } = await supabase
         .from("batches")

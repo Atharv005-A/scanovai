@@ -12,7 +12,7 @@ import { z } from "zod";
 
 type Sb = {
   from: (t: string) => any;
-  rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: any; error: any }>;
+  rpc: (fn: string, args?: Record<string, any>) => Promise<{ data: any; error: any }>;
 };
 
 const uuid = z.string().uuid();
@@ -70,7 +70,7 @@ export const myAccess = createServerFn({ method: "GET" })
       roles,
       authority,
       manufacturer: manufacturer ?? null,
-      requests: (requests ?? []) as Record<string, unknown>[],
+      requests: (requests ?? []) as Record<string, any>[],
       isStaff: roles.some((r) =>
         ["inspector", "supervisor", "authority_admin", "system_admin"].includes(r),
       ),
@@ -146,7 +146,7 @@ export const listRoleInvitations = createServerFn({ method: "GET" })
       .select("id, code, role, email, note, max_uses, uses, is_active, expires_at, created_at, authority_id")
       .order("created_at", { ascending: false })
       .limit(100);
-    return { invitations: (data ?? []) as Record<string, unknown>[] };
+    return { invitations: (data ?? []) as Record<string, any>[] };
   });
 
 export const deactivateRoleInvitation = createServerFn({ method: "POST" })
@@ -247,7 +247,7 @@ export const listRoleRequests = createServerFn({ method: "GET" })
     const { supabase, userId } = context as unknown as { supabase: Sb; userId: string };
     const roles = await rolesOf(supabase, userId);
     if (!roles.some((r) => ["authority_admin", "system_admin"].includes(r)))
-      return { requests: [] as Record<string, unknown>[] };
+      return { requests: [] as Record<string, any>[] };
 
     const { data: requests } = await supabase
       .from("role_requests")
@@ -264,7 +264,7 @@ export const listRoleRequests = createServerFn({ method: "GET" })
     );
 
     return {
-      requests: ((requests ?? []) as Record<string, unknown>[]).map((r) => ({
+      requests: ((requests ?? []) as Record<string, any>[]).map((r) => ({
         ...r,
         profile: byId.get(r["user_id"] as string) ?? null,
       })),
@@ -358,7 +358,7 @@ export const findAccounts = createServerFn({ method: "POST" })
     }
 
     return {
-      accounts: ((profiles ?? []) as Record<string, unknown>[]).map((p) => ({
+      accounts: ((profiles ?? []) as Record<string, any>[]).map((p) => ({
         id: p["id"] as string,
         full_name: p["full_name"] as string,
         email: p["email"] as string,
@@ -444,7 +444,7 @@ export const authorityRoster = createServerFn({ method: "GET" })
     const officeById = new Map(((offices ?? []) as { id: string }[]).map((o) => [o.id, o]));
 
     return {
-      members: ((members ?? []) as Record<string, unknown>[]).map((m) => ({
+      members: ((members ?? []) as Record<string, any>[]).map((m) => ({
         ...m,
         profile: byId.get(m["user_id"] as string) ?? null,
         office: m["office_id"] ? (officeById.get(m["office_id"] as string) ?? null) : null,

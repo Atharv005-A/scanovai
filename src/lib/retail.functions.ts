@@ -12,7 +12,7 @@ import { z } from "zod";
 
 type Sb = {
   from: (t: string) => any;
-  rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: any; error: any }>;
+  rpc: (fn: string, args?: Record<string, any>) => Promise<{ data: any; error: any }>;
 };
 
 const uuid = z.string().uuid();
@@ -210,7 +210,7 @@ export const recentRetailScans = createServerFn({ method: "GET" })
 
     const byId = new Map(((products ?? []) as { id: string; name: string }[]).map((p) => [p.id, p]));
     return {
-      scans: ((scans ?? []) as Record<string, unknown>[]).map((s) => ({
+      scans: ((scans ?? []) as Record<string, any>[]).map((s) => ({
         ...s,
         product: s["product_id"] ? (byId.get(s["product_id"] as string) ?? null) : null,
       })),

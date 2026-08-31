@@ -13,7 +13,7 @@ import { CATEGORIES, FIELD_DEFS, FIELD_LABELS } from "./domain";
 
 type Sb = {
   from: (t: string) => any;
-  rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: any; error: any }>;
+  rpc: (fn: string, args?: Record<string, any>) => Promise<{ data: any; error: any }>;
   storage: any;
 };
 
@@ -34,7 +34,7 @@ export const myCompany = createServerFn({ method: "GET" })
     const { supabase, userId, claims } = context as unknown as {
       supabase: Sb;
       userId: string;
-      claims: Record<string, unknown>;
+      claims: Record<string, any>;
     };
     const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
     const isManufacturer = ((roles ?? []) as { role: string }[]).some((r) => r.role === "manufacturer");
@@ -143,7 +143,7 @@ export const myProducts = createServerFn({ method: "GET" })
       ]);
 
     return {
-      products: ((products ?? []) as Record<string, unknown>[]).map((p) => ({
+      products: ((products ?? []) as Record<string, any>[]).map((p) => ({
         ...p,
         barcodes: ((barcodes ?? []) as { product_id: string }[]).filter((b) => b.product_id === p["id"]),
         batches: ((batches ?? []) as { product_id: string }[]).filter((b) => b.product_id === p["id"]),
@@ -519,7 +519,7 @@ export const registrySubmissions = createServerFn({ method: "GET" })
     ]);
 
     return {
-      products: ((products ?? []) as Record<string, unknown>[]).map((p) => ({
+      products: ((products ?? []) as Record<string, any>[]).map((p) => ({
         ...p,
         barcodes: ((barcodes ?? []) as { product_id: string; barcode: string }[])
           .filter((b) => b.product_id === p["id"])
