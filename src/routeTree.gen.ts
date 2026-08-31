@@ -12,6 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ReportRouteImport } from './routes/report'
+import { Route as RulesRouteImport } from './routes/rules'
+import { Route as ScanRouteImport } from './routes/scan'
+import { Route as TrackRouteImport } from './routes/track'
 import { Route as AuthenticatedAuthorityRouteImport } from './routes/_authenticated/authority'
 import { Route as AuthenticatedComplaintsRouteImport } from './routes/_authenticated/complaints'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -33,6 +37,26 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportRoute = ReportRouteImport.update({
+  id: '/report',
+  path: '/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RulesRoute = RulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScanRoute = ScanRouteImport.update({
+  id: '/scan',
+  path: '/scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrackRoute = TrackRouteImport.update({
+  id: '/track',
+  path: '/track',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAuthorityRoute = AuthenticatedAuthorityRouteImport.update({
@@ -82,6 +106,10 @@ const AuthenticatedInspectionsNewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
+  '/report': typeof ReportRoute
+  '/rules': typeof RulesRoute
+  '/scan': typeof ScanRoute
+  '/track': typeof TrackRoute
   '/authority': typeof AuthenticatedAuthorityRoute
   '/complaints': typeof AuthenticatedComplaintsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -94,6 +122,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
+  '/report': typeof ReportRoute
+  '/rules': typeof RulesRoute
+  '/scan': typeof ScanRoute
+  '/track': typeof TrackRoute
   '/authority': typeof AuthenticatedAuthorityRoute
   '/complaints': typeof AuthenticatedComplaintsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -108,6 +140,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/report': typeof ReportRoute
+  '/rules': typeof RulesRoute
+  '/scan': typeof ScanRoute
+  '/track': typeof TrackRoute
   '/_authenticated/authority': typeof AuthenticatedAuthorityRoute
   '/_authenticated/complaints': typeof AuthenticatedComplaintsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -122,6 +158,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/report'
+    | '/rules'
+    | '/scan'
+    | '/track'
     | '/authority'
     | '/complaints'
     | '/dashboard'
@@ -134,6 +174,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/report'
+    | '/rules'
+    | '/scan'
+    | '/track'
     | '/authority'
     | '/complaints'
     | '/dashboard'
@@ -147,6 +191,10 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/report'
+    | '/rules'
+    | '/scan'
+    | '/track'
     | '/_authenticated/authority'
     | '/_authenticated/complaints'
     | '/_authenticated/dashboard'
@@ -161,6 +209,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
+  ReportRoute: typeof ReportRoute
+  RulesRoute: typeof RulesRoute
+  ScanRoute: typeof ScanRoute
+  TrackRoute: typeof TrackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -184,6 +236,34 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/report': {
+      id: '/report'
+      path: '/report'
+      fullPath: '/report'
+      preLoaderRoute: typeof ReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rules': {
+      id: '/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof RulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scan': {
+      id: '/scan'
+      path: '/scan'
+      fullPath: '/scan'
+      preLoaderRoute: typeof ScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/track': {
+      id: '/track'
+      path: '/track'
+      fullPath: '/track'
+      preLoaderRoute: typeof TrackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/authority': {
@@ -282,6 +362,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
+  ReportRoute: ReportRoute,
+  RulesRoute: RulesRoute,
+  ScanRoute: ScanRoute,
+  TrackRoute: TrackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

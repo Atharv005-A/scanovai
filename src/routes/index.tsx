@@ -93,20 +93,29 @@ function Landing() {
         </p>
         <div className="mt-7 flex flex-wrap gap-3">
           <Button asChild size="lg">
+            <Link to="/scan">Check a package — no login</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link to="/report">Report a problem</Link>
+          </Button>
+          <Button asChild size="lg" variant="ghost">
             {session ? (
               <Link to="/dashboard">Go to my workspace</Link>
             ) : (
-              <Link to="/auth" search={{ mode: "signup" }}>
-                Get started
+              <Link to="/auth" search={{ mode: "signin" }}>
+                Officer sign in
               </Link>
             )}
           </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link to="/auth" search={{ mode: "signin" }}>
-              I already have an account
-            </Link>
-          </Button>
         </div>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Citizens can scan a pack, read its declarations and file a complaint without an account.{" "}
+          <Link to="/rules" className="font-medium underline underline-offset-4">
+            See the rules we check
+          </Link>
+          .
+        </p>
+
 
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((s, i) => (
