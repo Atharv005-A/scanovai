@@ -15,6 +15,13 @@
       "when": 1788169705395,
       "tag": "0001_storage_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788171704240,
+      "tag": "0002_inspections_owner_finalize_policy",
+      "breakpoints": true
     }
   ]
 }
