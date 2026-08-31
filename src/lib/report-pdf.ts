@@ -34,7 +34,8 @@ export function buildReportPdf(
     }
   }
   function heading(text: string) {
-    ensure(50);
+    y += 12;
+    ensure(60);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(20, 33, 61);
