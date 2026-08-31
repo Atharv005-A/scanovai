@@ -168,7 +168,7 @@ function InspectionDetail() {
     mutationFn: () => extract({ data: { inspectionId: id } }),
     onSuccess: (res) => {
       toast.success("Label read. Review each field before checking compliance.");
-      if (res.status !== "success" || res.wordCount < 5)
+      if (res.status !== "succeeded" || res.wordCount < 5)
         toast.warning(res.error ?? "The images may be hard to read — consider retaking them.");
       refreshAll();
     },

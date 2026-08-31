@@ -33,6 +33,8 @@ export const publicBarcodeLookup = createServerFn({ method: "POST" })
     if (!limit.allowed) return { rateLimited: true as const, message: limit.message ?? "", product: null };
 
     const barcode = normaliseBarcode(data.barcode);
+    if (!barcode)
+      return { rateLimited: false as const, message: "That barcode does not look valid.", product: null };
     const sb = publicSupabase();
     const { data: payload } = await sb.rpc("public_barcode_lookup", { _barcode: barcode });
     if (!payload) {

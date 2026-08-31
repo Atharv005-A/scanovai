@@ -182,7 +182,7 @@ export const holdForReview = createServerFn({ method: "POST" })
       .eq("retailer_id", userId);
     if (error) throw new Error("The item could not be held for review.");
     await auditLog(supabase as never, userId, "retail.held_for_review", "retail_scan", data.scanId, {
-      reason: data.note ?? undefined,
+      ...(data.note ? { reason: data.note } : {}),
     });
     return { ok: true as const };
   });
