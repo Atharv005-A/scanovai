@@ -204,8 +204,8 @@ export const publicPackageCheck = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    let checks: ReturnType<typeof evaluateRules>["checks"] = [];
-    let summary = { overall: "pending" as const, score: 0, total: 0, counts: {} as Record<string, number> };
+    let checks: EvaluatedCheck[] = [];
+    let summary: Summary | null = null;
     if (version) {
       const { data: rules } = await sb
         .from("rule_definitions")
@@ -218,8 +218,9 @@ export const publicPackageCheck = createServerFn({ method: "POST" })
         value: field.value,
         confidence: field.confidence,
         detected: field.detected,
+        source_image_id: null,
       }));
-      const evaluated = evaluateRules((rules ?? []) as never, declarationRows as never, {
+      const evaluated = evaluateRules((rules ?? []) as never, declarationRows, {
         category,
         hasImages: true,
         hasExtraction: true,
@@ -237,8 +238,9 @@ export const publicPackageCheck = createServerFn({ method: "POST" })
           : null,
       });
       checks = evaluated.checks;
-      summary = summarise(checks) as never;
+      summary = summarise(checks);
     }
+
 
     const { data: scan } = await supabaseAdmin
       .from("package_scans")
