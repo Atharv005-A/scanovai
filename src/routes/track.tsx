@@ -33,15 +33,24 @@ export const Route = createFileRoute("/track")({
   component: TrackPage,
 });
 
+interface Update {
+  status?: string;
+  note?: string;
+  created_at?: string;
+}
+
 function TrackPage() {
   const { token: initial } = Route.useSearch();
   const track = useServerFn(trackPublicComplaint);
   const [token, setToken] = useState(initial ?? "");
 
   const m = useMutation({
-    mutationFn: () => track({ data: { trackingToken: token.trim() } }),
+    mutationFn: () => track({ data: { token: token.trim() } }),
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const complaint = m.data?.complaint ?? null;
+  const updates: Update[] = Array.isArray(complaint?.["updates"]) ? complaint["updates"] : [];
 
   return (
     <PublicShell active="track">
@@ -73,31 +82,46 @@ function TrackPage() {
         </CardContent>
       </Card>
 
-      {m.data && (
+      {m.isSuccess && !complaint && (
+        <p className="mt-5 max-w-xl text-sm text-muted-foreground">
+          No report matches that tracking code. Check for typing mistakes — the code is case sensitive.
+        </p>
+      )}
+
+      {complaint && (
         <Card className="mt-5 max-w-xl">
-          {m.data.found ? (
-            <>
-              <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
-                <div>
-                  <CardTitle className="text-base">{m.data.complaint?.code}</CardTitle>
-                  <CardDescription>{m.data.complaint?.product_name}</CardDescription>
-                </div>
-                <Badge variant="outline" className="capitalize">
-                  {String(m.data.complaint?.status ?? "").replace(/_/g, " ")}
-                </Badge>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
-                <Row label="Filed on" value={formatDate(m.data.complaint?.created_at)} />
-                <Row label="Last update" value={formatDate(m.data.complaint?.updated_at)} />
-                <Row label="Priority" value={m.data.complaint?.priority ?? "—"} />
-                {m.data.complaint?.resolution_note && (
-                  <p className="rounded-md bg-muted/50 p-3">{m.data.complaint.resolution_note}</p>
-                )}
-              </CardContent>
-            </>
-          ) : (
-            <CardContent className="pt-6 text-sm text-muted-foreground">{m.data.message}</CardContent>
-          )}
+          <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
+            <div>
+              <CardTitle className="text-base">{String(complaint["complaint_code"] ?? "")}</CardTitle>
+              <CardDescription>{String(complaint["product_name"] ?? "")}</CardDescription>
+            </div>
+            <Badge variant="outline" className="capitalize">
+              {String(complaint["status"] ?? "").replace(/_/g, " ")}
+            </Badge>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <Row label="Filed on" value={formatDate(complaint["created_at"])} />
+            <Row label="Last update" value={formatDate(complaint["updated_at"])} />
+            <Row label="Priority" value={String(complaint["priority"] ?? "—")} />
+            {complaint["resolution_note"] && (
+              <p className="rounded-md bg-muted/50 p-3">{String(complaint["resolution_note"])}</p>
+            )}
+
+            {updates.length > 0 && (
+              <div>
+                <h2 className="mb-2 font-semibold">Progress</h2>
+                <ol className="space-y-2 border-l border-border pl-4">
+                  {updates.map((u, i) => (
+                    <li key={i}>
+                      <p className="font-medium capitalize">{String(u.status ?? "").replace(/_/g, " ")}</p>
+                      {u.note && <p className="text-muted-foreground">{u.note}</p>}
+                      <p className="text-xs text-muted-foreground">{formatDate(u.created_at)}</p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+          </CardContent>
         </Card>
       )}
     </PublicShell>
@@ -113,7 +137,7 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function formatDate(value?: string | null) {
-  if (!value) return "—";
+function formatDate(value?: unknown) {
+  if (!value || typeof value !== "string") return "—";
   return new Date(value).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
 }
