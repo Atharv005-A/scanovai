@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthNewPasswordRouteImport } from './routes/auth.new-password'
 import { Route as AuthenticatedInspectionsIndexRouteImport } from './routes/_authenticated/inspections.index'
+import { Route as AuthenticatedInspectionsIdRouteImport } from './routes/_authenticated/inspections.$id'
 import { Route as AuthenticatedInspectionsNewRouteImport } from './routes/_authenticated/inspections.new'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +48,12 @@ const AuthenticatedInspectionsIndexRoute =
     path: '/inspections/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedInspectionsIdRoute =
+  AuthenticatedInspectionsIdRouteImport.update({
+    id: '/inspections/$id',
+    path: '/inspections/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedInspectionsNewRoute =
   AuthenticatedInspectionsNewRouteImport.update({
     id: '/inspections/new',
@@ -59,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/auth/new-password': typeof AuthNewPasswordRoute
+  '/inspections/$id': typeof AuthenticatedInspectionsIdRoute
   '/inspections/new': typeof AuthenticatedInspectionsNewRoute
   '/inspections/': typeof AuthenticatedInspectionsIndexRoute
 }
@@ -67,6 +75,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/auth/new-password': typeof AuthNewPasswordRoute
+  '/inspections/$id': typeof AuthenticatedInspectionsIdRoute
   '/inspections/new': typeof AuthenticatedInspectionsNewRoute
   '/inspections': typeof AuthenticatedInspectionsIndexRoute
 }
@@ -77,6 +86,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/auth/new-password': typeof AuthNewPasswordRoute
+  '/_authenticated/inspections/$id': typeof AuthenticatedInspectionsIdRoute
   '/_authenticated/inspections/new': typeof AuthenticatedInspectionsNewRoute
   '/_authenticated/inspections/': typeof AuthenticatedInspectionsIndexRoute
 }
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/auth/new-password'
+    | '/inspections/$id'
     | '/inspections/new'
     | '/inspections/'
   fileRoutesByTo: FileRoutesByTo
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/auth/new-password'
+    | '/inspections/$id'
     | '/inspections/new'
     | '/inspections'
   id:
@@ -104,6 +116,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/dashboard'
     | '/auth/new-password'
+    | '/_authenticated/inspections/$id'
     | '/_authenticated/inspections/new'
     | '/_authenticated/inspections/'
   fileRoutesById: FileRoutesById
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInspectionsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/inspections/$id': {
+      id: '/_authenticated/inspections/$id'
+      path: '/inspections/$id'
+      fullPath: '/inspections/$id'
+      preLoaderRoute: typeof AuthenticatedInspectionsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/inspections/new': {
       id: '/_authenticated/inspections/new'
       path: '/inspections/new'
@@ -170,12 +190,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedInspectionsIdRoute: typeof AuthenticatedInspectionsIdRoute
   AuthenticatedInspectionsNewRoute: typeof AuthenticatedInspectionsNewRoute
   AuthenticatedInspectionsIndexRoute: typeof AuthenticatedInspectionsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedInspectionsIdRoute: AuthenticatedInspectionsIdRoute,
   AuthenticatedInspectionsNewRoute: AuthenticatedInspectionsNewRoute,
   AuthenticatedInspectionsIndexRoute: AuthenticatedInspectionsIndexRoute,
 }
