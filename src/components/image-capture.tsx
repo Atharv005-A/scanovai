@@ -318,15 +318,12 @@ export function BarcodeScanner({ onDetected }: { onDetected: (value: string, for
     try {
       const { BrowserMultiFormatReader } = await import("@zxing/library");
       const reader = new BrowserMultiFormatReader();
-      const controls = await reader.decodeFromVideoDevice(null, videoRef.current!, (result) => {
+      await reader.decodeFromVideoDevice(null, videoRef.current!, (result) => {
         if (!result) return;
         onDetected(result.getText(), String(result.getBarcodeFormat()));
         stop();
       });
-      stopRef.current = () => {
-        controls.stop();
-        reader.reset();
-      };
+      stopRef.current = () => reader.reset();
     } catch {
       setError("The camera could not be started. You can type the barcode instead.");
       setActive(false);

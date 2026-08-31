@@ -193,7 +193,7 @@ export const correctDeclaration = createServerFn({ method: "POST" })
     await audit(supabase, userId, "declaration.corrected", "inspection", data.inspectionId, {
       previous_value: { [data.fieldKey]: existing?.value ?? null },
       new_value: { [data.fieldKey]: value },
-      reason: data.reason ?? undefined,
+      ...(data.reason ? { reason: data.reason } : {}),
     });
 
     const { data: hasChecks } = await supabase

@@ -93,9 +93,13 @@ function Landing() {
         </p>
         <div className="mt-7 flex flex-wrap gap-3">
           <Button asChild size="lg">
-            <Link to={session ? "/dashboard" : "/auth"} search={session ? undefined : { mode: "signup" }}>
-              {session ? "Go to my workspace" : "Get started"}
-            </Link>
+            {session ? (
+              <Link to="/dashboard">Go to my workspace</Link>
+            ) : (
+              <Link to="/auth" search={{ mode: "signup" }}>
+                Get started
+              </Link>
+            )}
           </Button>
           <Button asChild size="lg" variant="outline">
             <Link to="/auth" search={{ mode: "signin" }}>
