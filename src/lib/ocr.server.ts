@@ -13,7 +13,7 @@
  * an AI vision model is never presented as the OCR engine.
  */
 
-export type OcrProviderId = "google_vision" | "tesseract_browser";
+export type OcrProviderId = "google_vision" | "lovable_ai_vision" | "tesseract_browser";
 
 export interface OcrProviderInfo {
   id: OcrProviderId;
@@ -32,6 +32,14 @@ export const OCR_PROVIDERS: Record<OcrProviderId, OcrProviderInfo> = {
     description:
       "Dense document text detection performed on the server. Returns per-block text with bounding boxes and per-word confidence.",
   },
+  lovable_ai_vision: {
+    id: "lovable_ai_vision",
+    label: "Built-in vision transcription (server)",
+    shortLabel: "Built-in reader",
+    runsOn: "server",
+    description:
+      "A vision model transcribes the printed text on the package, verbatim and line by line, on the server. It is used only to read characters — never to decide what the law requires.",
+  },
   tesseract_browser: {
     id: "tesseract_browser",
     label: "Tesseract OCR — on-device (WebAssembly)",
@@ -41,6 +49,7 @@ export const OCR_PROVIDERS: Record<OcrProviderId, OcrProviderInfo> = {
       "The open-source Tesseract engine compiled to WebAssembly, running inside this device's browser. No image leaves the device for the reading step.",
   },
 };
+
 
 export interface OcrBlock {
   text: string;
