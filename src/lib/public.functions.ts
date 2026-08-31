@@ -255,11 +255,14 @@ export const publicPackageCheck = createServerFn({ method: "POST" })
         observed: observed as never,
         assessment: {
           preliminary: true,
-          overall: summary.overall,
-          score: summary.score,
-          counts: summary.counts,
+          overall: summary?.overall ?? null,
+          score: summary?.score ?? null,
+          pass: summary?.pass ?? 0,
+          fail: summary?.fail ?? 0,
+          needs_review: summary?.needs_review ?? 0,
           registry_headline: comparison.headline,
         } as never,
+
         registry_match: comparison.match,
         mismatch_notes: comparison.differing.length ? comparison.headline : null,
         ocr_provider: ocr.provider,
