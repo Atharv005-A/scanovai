@@ -9,7 +9,12 @@
  * AI output is treated as evidence about the package, not as law.
  */
 
-import { parseQuantity, type CheckResult } from "./domain";
+import { parseQuantity, isCategoryGroup, CATEGORY_GROUPS, type CheckResult } from "./domain";
+
+/** Specific commodities that sit inside a simple group, for applicability. */
+const GROUP_MEMBERS: Record<string, string[]> = Object.fromEntries(
+  CATEGORY_GROUPS.map((g) => [g.value, g.members]),
+);
 
 export interface RuleRow {
   id: string;
@@ -74,7 +79,11 @@ export interface EvaluatedCheck {
 const LOW_CONFIDENCE = 0.6;
 
 function applies(rule: RuleRow, category: string) {
-  return rule.applicable_categories.includes("all") || rule.applicable_categories.includes(category);
+  if (rule.applicable_categories.includes("all")) return true;
+  if (rule.applicable_categories.includes(category)) return true;
+  // A simple group applies whenever any commodity inside it is covered.
+  const members = GROUP_MEMBERS[category];
+  return !!members && members.some((m) => rule.applicable_categories.includes(m));
 }
 
 function num(x: unknown, fallback: number) {
@@ -402,7 +411,15 @@ export function evaluateRules(
         const required = map[ctx.category];
         if (!required) {
           checks.push(
-            base(rule, value, "not_applicable", 0, "This commodity is not listed in the Third Schedule."),
+            isCategoryGroup(ctx.category)
+              ? base(
+                  rule,
+                  value,
+                  "manual_verification_required",
+                  0,
+                  "Only a broad product group was recorded, so the Third Schedule entry for this exact commodity must be checked by hand.",
+                )
+              : base(rule, value, "not_applicable", 0, "This commodity is not listed in the Third Schedule."),
           );
           break;
         }
@@ -433,7 +450,15 @@ export function evaluateRules(
         const spec = map[ctx.category];
         if (!spec) {
           checks.push(
-            base(rule, value, "not_applicable", 0, "This commodity is not listed in the Second Schedule."),
+            isCategoryGroup(ctx.category)
+              ? base(
+                  rule,
+                  value,
+                  "manual_verification_required",
+                  0,
+                  "Only a broad product group was recorded, so the Second Schedule standard pack sizes for this exact commodity must be checked by hand.",
+                )
+              : base(rule, value, "not_applicable", 0, "This commodity is not listed in the Second Schedule."),
           );
           break;
         }

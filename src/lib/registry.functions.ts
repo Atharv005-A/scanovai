@@ -9,7 +9,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-import { CATEGORIES, FIELD_DEFS, FIELD_LABELS } from "./domain";
+import { ALL_CATEGORY_VALUES, FIELD_DEFS, FIELD_LABELS } from "./domain";
 
 type Sb = {
   from: (t: string) => any;
@@ -18,7 +18,7 @@ type Sb = {
 };
 
 const uuid = z.string().uuid();
-const categoryValues = CATEGORIES.map((c) => c.value) as [string, ...string[]];
+const categoryValues = ALL_CATEGORY_VALUES as [string, ...string[]];
 const fieldKeys = FIELD_DEFS.map((f) => f.key) as [string, ...string[]];
 const EVIDENCE_BUCKET = "product-evidence";
 

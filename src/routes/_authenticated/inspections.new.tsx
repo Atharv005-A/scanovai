@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CATEGORIES } from "@/lib/domain";
+import { BarcodeScanner } from "@/components/image-capture";
+import { CATEGORIES, CATEGORY_GROUPS } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/inspections/new")({
   head: () => ({
@@ -36,7 +37,9 @@ function refCode() {
 function NewInspection() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [category, setCategory] = useState("other");
+  const [category, setCategory] = useState("group_food");
+  const [specific, setSpecific] = useState("none");
+  const [showSpecific, setShowSpecific] = useState(false);
   const [productName, setProductName] = useState("");
   const [manufacturerName, setManufacturerName] = useState("");
   const [barcode, setBarcode] = useState("");
@@ -61,7 +64,7 @@ function NewInspection() {
           inspector_id: user.id,
           authority_id: member?.authority_id ?? null,
           office_id: member?.office_id ?? null,
-          category,
+          category: specific !== "none" ? specific : category,
           product_name: productName.trim() || null,
           manufacturer_name: manufacturerName.trim() || null,
           barcode: barcode.trim() || null,
@@ -111,26 +114,49 @@ function NewInspection() {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Package details</CardTitle>
-          <CardDescription>Only the commodity category is required to begin.</CardDescription>
+          <CardDescription>Only the product kind is required to begin.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Commodity category</Label>
+            <Label>What kind of product is it?</Label>
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="max-h-72">
-                {CATEGORIES.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>
-                    {c.label}
+              <SelectContent>
+                {CATEGORY_GROUPS.map((g) => (
+                  <SelectItem key={g.value} value={g.value}>
+                    {g.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              The category decides which schedule-based checks apply.
+              {CATEGORY_GROUPS.find((g) => g.value === category)?.hint}
             </p>
+            {!showSpecific ? (
+              <button
+                type="button"
+                className="text-xs text-info underline"
+                onClick={() => setShowSpecific(true)}
+              >
+                Name the exact commodity (optional — enables schedule pack-size checks)
+              </button>
+            ) : (
+              <Select value={specific} onValueChange={setSpecific}>
+                <SelectTrigger aria-label="Exact commodity">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="none">Not specified</SelectItem>
+                  {CATEGORIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -159,7 +185,13 @@ function NewInspection() {
               id="bc"
               value={barcode}
               onChange={(e) => setBarcode(e.target.value)}
-              placeholder="Type it, or scan it on the next screen"
+              placeholder="Type it, or scan it with the camera"
+            />
+            <BarcodeScanner
+              onDetected={(value) => {
+                setBarcode(value);
+                toast.success("Barcode read from the camera.");
+              }}
             />
             <p className="text-xs text-muted-foreground">
               A barcode is supplementary evidence only. If a linked record disagrees with the package, the

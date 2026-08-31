@@ -10,11 +10,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { CATEGORIES } from "./domain";
+import { ALL_CATEGORY_VALUES } from "./domain";
 import type { EvaluatedCheck, Summary } from "./rule-engine";
 
 
-const categoryValues = CATEGORIES.map((c) => c.value) as [string, ...string[]];
+const categoryValues = ALL_CATEGORY_VALUES as [string, ...string[]];
 
 const PUBLIC_DISCLAIMER =
   "This is a preliminary consumer check, not an official government inspection. It reads the photograph you supplied and compares it with what the manufacturer registered. Only a Legal Metrology officer can decide whether a package complies with the law.";
@@ -92,7 +92,7 @@ export const publicPackageCheck = createServerFn({ method: "POST" })
     const { publicSupabase, callerFingerprint, rateLimit, decodeImage, base64ToBytes } = await import(
       "./public.server"
     );
-    const { runGoogleVisionOcr, ocrConfigStatus } = await import("./ocr.server");
+    const { runServerSideOcr, ocrConfigStatus } = await import("./ocr.server");
     const { structureFromOcr, AiError } = await import("./ai.server");
     const { compareWithRegistry } = await import("./registry");
     const { registryByBarcode } = await import("./registry.server");
@@ -108,7 +108,7 @@ export const publicPackageCheck = createServerFn({ method: "POST" })
     const barcode = data.barcode ? normaliseBarcode(data.barcode) : null;
 
     const config = ocrConfigStatus();
-    const ocr = await runGoogleVisionOcr(decoded.map((d) => ({ content: d.base64, side: d.side })));
+    const ocr = await runServerSideOcr(decoded.map((d) => ({ content: d.base64, side: d.side })));
 
     const sb = publicSupabase();
     const product = barcode ? await registryByBarcode(sb as never, barcode) : null;

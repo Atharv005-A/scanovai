@@ -104,9 +104,107 @@ export const CATEGORIES: CategoryDef[] = [
   { value: "other", label: "Other packaged commodity", group: "General" },
 ];
 
-export const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
-  CATEGORIES.map((c) => [c.value, c.label]),
+/**
+ * Simple, plain-language groups an inspector or citizen picks from.
+ * These are deliberately broad: the deterministic engine still applies every
+ * Rule 6 mandatory declaration, and any schedule-specific check that truly
+ * needs the exact commodity is reported as "manual verification required".
+ */
+export interface CategoryGroupDef {
+  value: string;
+  label: string;
+  hint: string;
+  /** Specific Second/Third Schedule categories that sit inside this group. */
+  members: string[];
+}
+
+export const CATEGORY_GROUPS: CategoryGroupDef[] = [
+  {
+    value: "group_food",
+    label: "Food & drink",
+    hint: "Biscuits, flour, tea, oil, water, soft drinks, dairy, sauces…",
+    members: [
+      "biscuits",
+      "bread",
+      "butter",
+      "cereals_pulses",
+      "coffee",
+      "tea",
+      "beverage_mix",
+      "edible_oil",
+      "milk_powder",
+      "flour",
+      "salt",
+      "soft_drinks",
+      "packaged_water",
+      "sauces",
+      "honey",
+      "curd",
+      "ice_cream",
+      "fast_food",
+    ],
+  },
+  {
+    value: "group_personal_care",
+    label: "Personal care & cosmetics",
+    hint: "Soap, shampoo, creams, deodorants, medicines",
+    members: ["toilet_soap", "cosmetics", "aerosol", "drug_formulation"],
+  },
+  {
+    value: "group_household",
+    label: "Household & cleaning",
+    hint: "Detergents, laundry soap, cleaners, LPG cylinders",
+    members: ["detergent_powder", "laundry_soap", "lpg"],
+  },
+  {
+    value: "group_building",
+    label: "Building & industrial",
+    hint: "Cement, paints, varnishes",
+    members: ["cement", "paint_liquid", "paste_paint"],
+  },
+  {
+    value: "group_textiles",
+    label: "Clothing & textiles",
+    hint: "Garments, yarn, fabric packs",
+    members: ["ready_made_garments", "yarn"],
+  },
+  {
+    value: "group_other",
+    label: "Other packaged goods",
+    hint: "Anything else sold in a sealed package",
+    members: ["other"],
+  },
+];
+
+export const CATEGORY_GROUP_VALUES = CATEGORY_GROUPS.map((g) => g.value);
+
+/** True when the value is one of the six simple groups rather than an exact commodity. */
+export function isCategoryGroup(value: string | null | undefined): boolean {
+  return !!value && CATEGORY_GROUP_VALUES.includes(value);
+}
+
+/** Specific commodity -> simple group, used to keep old records readable. */
+export const CATEGORY_TO_GROUP: Record<string, string> = Object.fromEntries(
+  CATEGORY_GROUPS.flatMap((g) => g.members.map((m) => [m, g.value])),
 );
+
+export function groupForCategory(value: string | null | undefined): string {
+  if (!value) return "group_other";
+  if (isCategoryGroup(value)) return value;
+  return CATEGORY_TO_GROUP[value] ?? "group_other";
+}
+
+/** Every accepted category value: the six groups plus the detailed list. */
+export const ALL_CATEGORY_VALUES = [
+  ...CATEGORY_GROUP_VALUES,
+  ...CATEGORIES.map((c) => c.value),
+];
+
+export const CATEGORY_LABELS: Record<string, string> = {
+  ...Object.fromEntries(CATEGORIES.map((c) => [c.value, c.label])),
+  ...Object.fromEntries(CATEGORY_GROUPS.map((g) => [g.value, g.label])),
+};
+
 
 export const IMAGE_SIDES = [
   { value: "front", label: "Front of pack" },
