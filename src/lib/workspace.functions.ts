@@ -342,7 +342,7 @@ export const loadDemoData = createServerFn({ method: "POST" })
         })) as never,
       );
 
-      await runComplianceForDemo(supabase, userId, inspection.id);
+      await runComplianceForDemo(supabase as never, userId, inspection.id);
       created += 1;
     }
 

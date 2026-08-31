@@ -580,7 +580,7 @@ export const decideProduct = createServerFn({ method: "POST" })
     await auditLog(supabase as never, userId, "product.reviewed", "product", data.productId, {
       previous_value: { status: before?.status ?? null },
       new_value: { status: data.decision },
-      reason: data.note ?? null,
+      reason: data.note ?? undefined,
     });
     return { ok: true as const };
   });

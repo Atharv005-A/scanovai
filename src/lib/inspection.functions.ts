@@ -673,7 +673,7 @@ export const decideAmendment = createServerFn({ method: "POST" })
       if (error || !rejected || rejected.length === 0)
         throw new Error("Only an authority administrator may decide an amendment.");
       await auditLog(supabase as never, userId, "inspection.amendment_rejected", "inspection", amendment.inspection_id, {
-        reason: data.note ?? null,
+        reason: data.note ?? undefined,
       });
     }
 

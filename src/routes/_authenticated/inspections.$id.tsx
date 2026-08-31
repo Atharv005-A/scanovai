@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import {
-  extractInspectionLabels,
+  runInspectionOcr,
   runComplianceCheck,
   correctDeclaration,
   finalizeInspection,
@@ -92,7 +92,7 @@ function InspectionDetail() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const extract = useServerFn(extractInspectionLabels);
+  const extract = useServerFn(runInspectionOcr);
   const check = useServerFn(runComplianceCheck);
   const correct = useServerFn(correctDeclaration);
   const finalize = useServerFn(finalizeInspection);
@@ -168,8 +168,8 @@ function InspectionDetail() {
     mutationFn: () => extract({ data: { inspectionId: id } }),
     onSuccess: (res) => {
       toast.success("Label read. Review each field before checking compliance.");
-      if (res.quality && res.quality.usable === false)
-        toast.warning(res.quality.note ?? "The images may be hard to read — consider retaking them.");
+      if (res.status !== "success" || res.wordCount < 5)
+        toast.warning(res.error ?? "The images may be hard to read — consider retaking them.");
       refreshAll();
     },
     onError: (e: Error) => toast.error(e.message),

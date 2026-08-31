@@ -30,7 +30,7 @@ export const publicBarcodeLookup = createServerFn({ method: "POST" })
 
     const who = await callerFingerprint();
     const limit = await rateLimit("public_lookup", who, 60, 600);
-    if (!limit.allowed) return { rateLimited: true as const, message: limit.message, product: null };
+    if (!limit.allowed) return { rateLimited: true as const, message: limit.message ?? "", product: null };
 
     const barcode = normaliseBarcode(data.barcode);
     const sb = publicSupabase();
@@ -423,7 +423,7 @@ export const submitPublicComplaint = createServerFn({ method: "POST" })
       const { data: link } = await supabaseAdmin
         .from("product_barcodes")
         .select("product_id")
-        .eq("barcode", normaliseBarcode(data.barcode))
+        .eq("barcode", normaliseBarcode(data.barcode) ?? "")
         .maybeSingle();
       productId = (link?.product_id as string | null) ?? null;
     }

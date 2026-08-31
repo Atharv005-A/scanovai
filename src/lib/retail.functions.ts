@@ -100,6 +100,7 @@ export const retailScan = createServerFn({ method: "POST" })
     if (!limit.allowed) throw new Error(limit.message);
 
     const barcode = normaliseBarcode(data.barcode);
+    if (!barcode) throw new Error("That barcode does not look valid.");
     const product = await registryByBarcode(supabase, barcode);
 
     let recentMismatches = 0;
@@ -181,7 +182,7 @@ export const holdForReview = createServerFn({ method: "POST" })
       .eq("retailer_id", userId);
     if (error) throw new Error("The item could not be held for review.");
     await auditLog(supabase as never, userId, "retail.held_for_review", "retail_scan", data.scanId, {
-      reason: data.note ?? null,
+      reason: data.note ?? undefined,
     });
     return { ok: true as const };
   });
