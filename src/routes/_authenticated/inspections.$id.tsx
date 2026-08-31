@@ -449,7 +449,9 @@ function InspectionDetail() {
             <FinalizeBlock
               disabled={checkRows.length === 0}
               onFinalize={async (notes, supervisorReview) => {
-                await finalize({ data: { inspectionId: id, notes, supervisorReview } });
+                await finalize({
+                  data: { inspectionId: id, notes, needsSupervisorReview: supervisorReview },
+                });
                 toast.success("Inspection finalized.");
                 refreshAll();
               }}
