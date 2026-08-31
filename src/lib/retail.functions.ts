@@ -205,11 +205,20 @@ export const recentRetailScans = createServerFn({ method: "GET" })
           .filter((v): v is string => !!v),
       ),
     ];
-    const { data: products } = productIds.length
-      ? await supabase.from("products").select("id, name, category").in("id", productIds)
-      : { data: [] };
+    // Registry names for products this retailer scanned. Read through the
+    // server-only client with a narrow, non-commercial column projection:
+    // retailers are not product owners, so they have no direct SELECT right.
+    let products: unknown[] = [];
+    if (productIds.length) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data } = await supabaseAdmin
+        .from("products")
+        .select("id, name, category")
+        .in("id", productIds);
+      products = data ?? [];
+    }
 
-    const byId = new Map(((products ?? []) as { id: string; name: string }[]).map((p) => [p.id, p]));
+    const byId = new Map((products as { id: string; name: string }[]).map((p) => [p.id, p]));
     return {
       scans: ((scans ?? []) as Record<string, any>[]).map((s) => ({
         ...s,
