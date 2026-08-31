@@ -253,7 +253,7 @@ export const loadDemoData = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context as unknown as { supabase: Sb; userId: string };
-    const { runComplianceForDemo } = await import("./demo.server");
+    const { runComplianceForDemo } = await import("./engine.server");
 
     const { data: existing } = await supabase
       .from("inspections")
