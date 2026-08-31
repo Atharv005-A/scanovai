@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Camera, Upload, Trash2, Loader2, ScanBarcode, X } from "lucide-react";
 import { toast } from "sonner";
@@ -305,50 +305,200 @@ export function ImageCapture({
   );
 }
 
-/** Scans a barcode from the live camera using ZXing, loaded only on demand. */
-export function BarcodeScanner({ onDetected }: { onDetected: (value: string, format: string) => void }) {
+/**
+ * Live barcode / QR scanner.
+ *
+ * Uses the browser's native BarcodeDetector when available (fast, nothing to
+ * download) and falls back to the bundled ZXing decoder. The camera stream is
+ * requested explicitly so permission and hardware problems can be reported in
+ * plain language, with manual entry always available next to it.
+ */
+export function BarcodeScanner({
+  onDetected,
+  label = "Scan barcode",
+}: {
+  onDetected: (value: string, format: string) => void;
+  label?: string;
+}) {
   const [active, setActive] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [engine, setEngine] = useState<string | null>(null);
+  const [lastRead, setLastRead] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const stopRef = useRef<(() => void) | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const zxingRef = useRef<{ reset: () => void } | null>(null);
+  const doneRef = useRef(false);
+
+  const stop = useCallback(() => {
+    doneRef.current = true;
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    try {
+      zxingRef.current?.reset();
+    } catch {
+      /* the decoder is already torn down */
+    }
+    zxingRef.current = null;
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+    setActive(false);
+    setStarting(false);
+  }, []);
+
+  useEffect(() => stop, [stop]);
+
+  function report(value: string, format: string) {
+    if (doneRef.current) return;
+    setLastRead(value);
+    onDetected(value, format);
+    stop();
+  }
 
   async function start() {
     setError(null);
+    setLastRead(null);
+    doneRef.current = false;
+    setStarting(true);
     setActive(true);
+
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      setError("This browser cannot open the camera. Type the barcode instead.");
+      setActive(false);
+      setStarting(false);
+      return;
+    }
+    if (!window.isSecureContext) {
+      setError("The camera needs a secure (https) connection. Type the barcode instead.");
+      setActive(false);
+      setStarting(false);
+      return;
+    }
+
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 } },
+        audio: false,
+      });
+    } catch (e) {
+      const name = (e as DOMException)?.name ?? "";
+      setError(
+        name === "NotAllowedError" || name === "SecurityError"
+          ? "Camera access was blocked. Allow the camera for this site in your browser settings, or type the barcode instead."
+          : name === "NotFoundError" || name === "OverconstrainedError"
+            ? "No usable camera was found on this device. Type the barcode instead."
+            : name === "NotReadableError"
+              ? "The camera is already in use by another app. Close it and try again."
+              : "The camera could not be started. Type the barcode instead.",
+      );
+      setActive(false);
+      setStarting(false);
+      return;
+    }
+
+    streamRef.current = stream;
+    const video = videoRef.current;
+    if (!video) {
+      stop();
+      return;
+    }
+    video.srcObject = stream;
+    video.muted = true;
+    try {
+      await video.play();
+    } catch {
+      /* Safari resolves play() late; decoding still works once frames arrive. */
+    }
+    setStarting(false);
+
+    const Detector = (window as unknown as { BarcodeDetector?: any }).BarcodeDetector;
+    if (Detector) {
+      try {
+        const formats: string[] = (await Detector.getSupportedFormats?.()) ?? [];
+        const wanted = [
+          "ean_13",
+          "ean_8",
+          "upc_a",
+          "upc_e",
+          "code_128",
+          "code_39",
+          "itf",
+          "qr_code",
+        ].filter((f) => formats.length === 0 || formats.includes(f));
+        const detector = new Detector(wanted.length ? { formats: wanted } : undefined);
+        setEngine("Browser barcode detector");
+        const tick = async () => {
+          if (doneRef.current || !videoRef.current) return;
+          try {
+            const found = await detector.detect(videoRef.current);
+            const hit = found?.find((f: any) => f?.rawValue);
+            if (hit) {
+              report(String(hit.rawValue), String(hit.format ?? "unknown"));
+              return;
+            }
+          } catch {
+            /* a dropped frame is not fatal; keep scanning */
+          }
+          rafRef.current = requestAnimationFrame(() => void tick());
+        };
+        void tick();
+        return;
+      } catch {
+        /* fall through to ZXing */
+      }
+    }
+
     try {
       const { BrowserMultiFormatReader } = await import("@zxing/library");
       const reader = new BrowserMultiFormatReader();
-      await reader.decodeFromVideoDevice(null, videoRef.current!, (result) => {
+      zxingRef.current = reader as unknown as { reset: () => void };
+      setEngine("ZXing decoder");
+      await reader.decodeFromStream(stream, video, (result) => {
         if (!result) return;
-        onDetected(result.getText(), String(result.getBarcodeFormat()));
-        stop();
+        report(result.getText(), String(result.getBarcodeFormat()));
       });
-      stopRef.current = () => reader.reset();
     } catch {
-      setError("The camera could not be started. You can type the barcode instead.");
-      setActive(false);
+      setError("The barcode could not be decoded on this device. Type the number instead.");
+      stop();
     }
-  }
-
-  function stop() {
-    stopRef.current?.();
-    stopRef.current = null;
-    setActive(false);
   }
 
   return (
     <div className="space-y-2">
       {!active ? (
-        <Button type="button" variant="outline" onClick={start}>
-          <ScanBarcode className="mr-2 size-4" /> Scan barcode
+        <Button type="button" variant="outline" onClick={() => void start()}>
+          <ScanBarcode className="mr-2 size-4" /> {label}
         </Button>
       ) : (
         <div className="space-y-2">
-          <video ref={videoRef} className="w-full max-w-sm rounded-md border border-border" muted />
-          <Button type="button" variant="ghost" onClick={stop}>
-            Stop scanning
-          </Button>
+          <div className="relative overflow-hidden rounded-md border border-border bg-black/90">
+            <video
+              ref={videoRef}
+              className="h-56 w-full object-cover"
+              muted
+              playsInline
+              autoPlay
+            />
+            <div className="pointer-events-none absolute inset-x-8 inset-y-16 rounded-md border-2 border-primary/80" />
+            <span className="absolute bottom-1 left-2 text-xs text-white/90">
+              {starting ? "Starting the camera…" : "Scanning… hold the barcode inside the frame"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button type="button" variant="ghost" onClick={stop}>
+              Stop scanning
+            </Button>
+            {engine && <span className="text-xs text-muted-foreground">{engine}</span>}
+          </div>
         </div>
+      )}
+      {lastRead && !active && (
+        <p className="text-xs text-muted-foreground">Read: {lastRead}</p>
       )}
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
