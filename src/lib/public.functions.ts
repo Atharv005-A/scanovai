@@ -326,10 +326,17 @@ export const publicPackageCheck = createServerFn({ method: "POST" })
         })),
       },
       assessment: {
-        overall: summary.overall,
-        score: summary.score,
-        total: summary.total,
-        counts: summary.counts,
+        overall: summary?.overall ?? null,
+        score: summary?.score ?? null,
+        total: summary?.total ?? 0,
+        counts: {
+          pass: summary?.pass ?? 0,
+          fail: summary?.fail ?? 0,
+          needs_review: summary?.needs_review ?? 0,
+          unable_to_verify: summary?.unable_to_verify ?? 0,
+          manual: summary?.manual ?? 0,
+          not_applicable: summary?.not_applicable ?? 0,
+        },
         items: checks
           .filter((c) => c.result !== "not_applicable")
           .map((c) => ({
@@ -344,6 +351,7 @@ export const publicPackageCheck = createServerFn({ method: "POST" })
         rule_version: version?.version_label ?? null,
         source_document: version?.source_document ?? null,
       },
+
       disclaimer: PUBLIC_DISCLAIMER,
     };
   });
