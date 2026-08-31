@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { publicBarcodeLookup, publicPackageCheck } from "@/lib/public.functions";
 import { fileToJpegBase64, base64Preview } from "@/lib/image-file";
-import { CATEGORIES, CATEGORY_LABELS, FIELD_LABELS, REGISTRY_MATCH_LABELS, type CheckResult } from "@/lib/domain";
+import { CATEGORY_GROUPS, CATEGORY_LABELS, FIELD_LABELS, REGISTRY_MATCH_LABELS, type CheckResult } from "@/lib/domain";
 
 export const Route = createFileRoute("/scan")({
   ssr: false,
@@ -246,7 +246,7 @@ function GuestScan() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="auto">Detect automatically</SelectItem>
-                  {CATEGORIES.map((c) => (
+                  {CATEGORY_GROUPS.map((c) => (
                     <SelectItem key={c.value} value={c.value}>
                       {c.label}
                     </SelectItem>
