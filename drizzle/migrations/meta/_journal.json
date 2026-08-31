@@ -71,6 +71,13 @@
       "when": 1788176801799,
       "tag": "0009_track_complaint_token_min_length",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1788176880213,
+      "tag": "0010_revoke_anon_grants_on_registry_tables",
+      "breakpoints": true
     }
   ]
 }
