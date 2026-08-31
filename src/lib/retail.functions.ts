@@ -12,7 +12,7 @@ import { z } from "zod";
 
 type Sb = {
   from: (t: string) => any;
-  rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: any; error: any }>;
+  rpc: (fn: string, args?: Record<string, any>) => Promise<{ data: any; error: any }>;
 };
 
 const uuid = z.string().uuid();
@@ -100,6 +100,7 @@ export const retailScan = createServerFn({ method: "POST" })
     if (!limit.allowed) throw new Error(limit.message);
 
     const barcode = normaliseBarcode(data.barcode);
+    if (!barcode) throw new Error("That barcode does not look valid.");
     const product = await registryByBarcode(supabase, barcode);
 
     let recentMismatches = 0;
@@ -181,7 +182,7 @@ export const holdForReview = createServerFn({ method: "POST" })
       .eq("retailer_id", userId);
     if (error) throw new Error("The item could not be held for review.");
     await auditLog(supabase as never, userId, "retail.held_for_review", "retail_scan", data.scanId, {
-      reason: data.note ?? null,
+      ...(data.note ? { reason: data.note } : {}),
     });
     return { ok: true as const };
   });
@@ -210,7 +211,7 @@ export const recentRetailScans = createServerFn({ method: "GET" })
 
     const byId = new Map(((products ?? []) as { id: string; name: string }[]).map((p) => [p.id, p]));
     return {
-      scans: ((scans ?? []) as Record<string, unknown>[]).map((s) => ({
+      scans: ((scans ?? []) as Record<string, any>[]).map((s) => ({
         ...s,
         product: s["product_id"] ? (byId.get(s["product_id"] as string) ?? null) : null,
       })),

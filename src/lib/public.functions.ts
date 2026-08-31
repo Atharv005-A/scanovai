@@ -30,9 +30,11 @@ export const publicBarcodeLookup = createServerFn({ method: "POST" })
 
     const who = await callerFingerprint();
     const limit = await rateLimit("public_lookup", who, 60, 600);
-    if (!limit.allowed) return { rateLimited: true as const, message: limit.message, product: null };
+    if (!limit.allowed) return { rateLimited: true as const, message: limit.message ?? "", product: null };
 
     const barcode = normaliseBarcode(data.barcode);
+    if (!barcode)
+      return { rateLimited: false as const, message: "That barcode does not look valid.", product: null };
     const sb = publicSupabase();
     const { data: payload } = await sb.rpc("public_barcode_lookup", { _barcode: barcode });
     if (!payload) {
@@ -43,7 +45,7 @@ export const publicBarcodeLookup = createServerFn({ method: "POST" })
         product: null,
       };
     }
-    const p = payload as Record<string, unknown>;
+    const p = payload as Record<string, any>;
     return {
       rateLimited: false as const,
       message: null,
@@ -404,7 +406,7 @@ export const submitPublicComplaint = createServerFn({ method: "POST" })
     }
 
     // Advisory AI triage. It may never decide, close or reject a complaint.
-    let triage: Record<string, unknown> | null = null;
+    let triage: Record<string, any> | null = null;
     try {
       const { triageComplaint } = await import("./ai.server");
       const result = await triageComplaint({
@@ -423,7 +425,7 @@ export const submitPublicComplaint = createServerFn({ method: "POST" })
       const { data: link } = await supabaseAdmin
         .from("product_barcodes")
         .select("product_id")
-        .eq("barcode", normaliseBarcode(data.barcode))
+        .eq("barcode", normaliseBarcode(data.barcode) ?? "")
         .maybeSingle();
       productId = (link?.product_id as string | null) ?? null;
     }
@@ -507,5 +509,5 @@ export const trackPublicComplaint = createServerFn({ method: "POST" })
     const sb = publicSupabase();
     const { data: payload } = await sb.rpc("track_complaint", { _token: data.token });
     if (!payload) return { complaint: null };
-    return { complaint: payload as Record<string, unknown> };
+    return { complaint: payload as Record<string, any> };
   });

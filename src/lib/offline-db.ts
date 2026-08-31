@@ -82,7 +82,7 @@ export function offlineSupported() {
 function open(): Promise<IDBDatabase> {
   if (!offlineSupported()) return Promise.reject(new Error("Offline storage is unavailable."));
   if (!dbPromise) {
-    dbPromise = new Promise((resolve, reject) => {
+    dbPromise = new Promise<IDBDatabase>((resolve, reject) => {
       const req = indexedDB.open(DB_NAME, DB_VERSION);
       req.onupgradeneeded = () => {
         const db = req.result;
@@ -113,7 +113,7 @@ function open(): Promise<IDBDatabase> {
       throw e;
     });
   }
-  return dbPromise;
+  return dbPromise as Promise<IDBDatabase>;
 }
 
 function run<T>(

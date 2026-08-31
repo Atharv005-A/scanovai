@@ -22,12 +22,12 @@ export const bootstrapWorkspace = createServerFn({ method: "POST" })
     const { supabase, userId, claims } = context as unknown as {
       supabase: Sb;
       userId: string;
-      claims: Record<string, unknown>;
+      claims: Record<string, any>;
     };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const email = (claims["email"] as string | undefined) ?? "";
-    const meta = (claims["user_metadata"] as Record<string, unknown> | undefined) ?? {};
+    const meta = (claims["user_metadata"] as Record<string, any> | undefined) ?? {};
     const fullName = (meta["full_name"] as string | undefined) ?? email.split("@")[0] ?? "User";
 
     await supabaseAdmin
@@ -342,7 +342,7 @@ export const loadDemoData = createServerFn({ method: "POST" })
         })) as never,
       );
 
-      await runComplianceForDemo(supabase, userId, inspection.id);
+      await runComplianceForDemo(supabase as never, userId, inspection.id);
       created += 1;
     }
 

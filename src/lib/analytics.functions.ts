@@ -12,7 +12,7 @@ import { z } from "zod";
 
 type Sb = {
   from: (t: string) => any;
-  rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: any; error: any }>;
+  rpc: (fn: string, args?: Record<string, any>) => Promise<{ data: any; error: any }>;
 };
 
 const filterSchema = z
@@ -175,7 +175,7 @@ export const inspectorDashboard = createServerFn({ method: "GET" })
       trend: trendSeries(rows, new Date(Date.now() - 29 * 86_400_000).toISOString(), new Date().toISOString()),
       categories: tally(rows, (r) => r.category).slice(0, 8),
       recent: rows.slice(0, 8),
-      queue: (pendingSync ?? []) as Record<string, unknown>[],
+      queue: (pendingSync ?? []) as Record<string, any>[],
     };
   });
 
@@ -378,7 +378,7 @@ export const systemDashboard = createServerFn({ method: "GET" })
     const durations = ocrRows.map((r) => r.duration_ms ?? 0).filter((n) => n > 0);
 
     return {
-      authorities: (authorities.data ?? []) as Record<string, unknown>[],
+      authorities: (authorities.data ?? []) as Record<string, any>[],
       roleCounts: tally((users.data ?? []) as { role: string }[], (r) => r.role),
       inspectionCounts: {
         total: (inspections.data ?? []).length,
@@ -400,7 +400,7 @@ export const systemDashboard = createServerFn({ method: "GET" })
       },
       products: tally((products.data ?? []) as { status: string }[], (r) => r.status),
       complaints: tally((complaints.data ?? []) as { status: string }[], (r) => r.status),
-      auditEvents: (audits.data ?? []) as Record<string, unknown>[],
+      auditEvents: (audits.data ?? []) as Record<string, any>[],
     };
   });
 
@@ -431,7 +431,7 @@ export const analyticsFilterOptions = createServerFn({ method: "GET" })
       : { data: [] };
 
     return {
-      offices: (offices.data ?? []) as Record<string, unknown>[],
+      offices: (offices.data ?? []) as Record<string, any>[],
       categories: [...new Set(rows.map((r) => r.category))].sort(),
       manufacturers: [...new Set(rows.map((r) => r.manufacturer_name).filter(Boolean))].slice(0, 60) as string[],
       regions: [...new Set(rows.map((r) => r.region).filter(Boolean))].slice(0, 60) as string[],
