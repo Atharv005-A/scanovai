@@ -104,18 +104,29 @@ export interface OcrConfigStatus {
   secretName: string;
 }
 
+/** The built-in reader needs no separate key; it uses the workspace AI gateway. */
+export function builtInReaderAvailable(): boolean {
+  const key = process.env["LOVABLE_API_KEY"];
+  return !!key && key.trim() !== "";
+}
+
 export function ocrConfigStatus(): OcrConfigStatus {
-  const configured = googleVisionKey() != null;
+  const vision = googleVisionKey() != null;
+  const builtIn = builtInReaderAvailable();
+  const primary = vision ? OCR_PROVIDERS.google_vision : OCR_PROVIDERS.lovable_ai_vision;
   return {
-    primary: OCR_PROVIDERS.google_vision,
-    primaryConfigured: configured,
+    primary,
+    primaryConfigured: vision || builtIn,
     fallback: OCR_PROVIDERS.tesseract_browser,
     secretName: "GOOGLE_CLOUD_VISION_API_KEY",
-    message: configured
+    message: vision
       ? "Google Cloud Vision is configured. Package images are read on the server with DOCUMENT_TEXT_DETECTION."
-      : "Google Cloud Vision is not configured on this deployment, so the server-side reader is unavailable. Reading falls back to the Tesseract engine running on this device, and manual entry is always available.",
+      : builtIn
+        ? "Package images are read on the server by the built-in vision transcription engine. Add a Google Cloud Vision key to switch to dense document text detection with per-word confidence."
+        : "No server-side reader is available on this deployment. Reading falls back to the Tesseract engine running on this device, and manual entry is always available.",
   };
 }
+
 
 interface VisionVertex {
   x?: number;
