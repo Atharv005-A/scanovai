@@ -10,11 +10,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { CATEGORIES } from "./domain";
+import { ALL_CATEGORY_VALUES } from "./domain";
 import type { EvaluatedCheck, Summary } from "./rule-engine";
 
 
-const categoryValues = CATEGORIES.map((c) => c.value) as [string, ...string[]];
+const categoryValues = ALL_CATEGORY_VALUES as [string, ...string[]];
 
 const PUBLIC_DISCLAIMER =
   "This is a preliminary consumer check, not an official government inspection. It reads the photograph you supplied and compares it with what the manufacturer registered. Only a Legal Metrology officer can decide whether a package complies with the law.";
