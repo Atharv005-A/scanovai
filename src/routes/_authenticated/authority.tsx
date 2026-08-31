@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_authenticated/authority")({
       { property: "og:description", content: "Authority-level oversight and analytics in SCANOVA-AI." },
     ],
   }),
-  component: AuthorityView;
+  component: AuthorityView,
 });
 
 const COLORS = ["#1f9d55", "#c0392b", "#d68910", "#2471a3", "#7f8c8d"];
