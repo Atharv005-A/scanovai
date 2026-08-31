@@ -450,7 +450,15 @@ export function evaluateRules(
         const spec = map[ctx.category];
         if (!spec) {
           checks.push(
-            base(rule, value, "not_applicable", 0, "This commodity is not listed in the Second Schedule."),
+            isCategoryGroup(ctx.category)
+              ? base(
+                  rule,
+                  value,
+                  "manual_verification_required",
+                  0,
+                  "Only a broad product group was recorded, so the Second Schedule standard pack sizes for this exact commodity must be checked by hand.",
+                )
+              : base(rule, value, "not_applicable", 0, "This commodity is not listed in the Second Schedule."),
           );
           break;
         }
