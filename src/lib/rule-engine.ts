@@ -120,9 +120,21 @@ export function evaluateRules(
 
   for (const rule of rules) {
     if (!applies(rule, ctx.category)) {
-      checks.push(
-        base(rule, null, "not_applicable", 0, "This rule does not apply to the confirmed product category."),
-      );
+      checks.push({
+        rule_id: rule.id,
+        rule_code: rule.rule_code,
+        rule_number: rule.rule_number,
+        title: rule.title,
+        requirement: rule.requirement,
+        detected_value: null,
+        expected_condition: rule.requirement,
+        result: "not_applicable",
+        confidence: 0,
+        explanation: "This rule does not apply to the confirmed product category.",
+        evidence_image_id: null,
+        source_section: rule.source_section,
+        source_page: rule.source_page,
+      });
       continue;
     }
 
@@ -517,33 +529,6 @@ export function evaluateRules(
   }
 
   return { checks, conflict };
-
-  function base(
-    r: RuleRow,
-    detected: string | null,
-    result: CheckResult,
-    confidence: number,
-    explanation: string,
-  ): EvaluatedCheck {
-    return {
-      rule_id: r.id,
-      rule_code: r.rule_code,
-      rule_number: r.rule_number,
-      title: r.title,
-      requirement: r.requirement,
-      detected_value: detected,
-      expected_condition:
-        typeof (r.parameters as Record<string, unknown>)["expected"] === "string"
-          ? ((r.parameters as Record<string, unknown>)["expected"] as string)
-          : r.requirement,
-      result,
-      confidence,
-      explanation,
-      evidence_image_id: null,
-      source_section: r.source_section,
-      source_page: r.source_page,
-    };
-  }
 }
 
 export interface Summary {
