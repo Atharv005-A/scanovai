@@ -37,19 +37,32 @@ export const Route = createFileRoute("/rules")({
   component: RulesPage,
 });
 
+interface RuleRow {
+  id: string;
+  rule_number: string;
+  title: string;
+  requirement: string;
+  check_type: string;
+  exceptions: string | null;
+  source_section: string | null;
+  source_page: number | null;
+  applicable_categories: string[] | null;
+}
+
 function RulesPage() {
   const { data } = useSuspenseQuery(rulesQuery);
   const [q, setQ] = useState("");
+  const all = data.rules as unknown as RuleRow[];
 
   const rules = useMemo(() => {
     const term = q.trim().toLowerCase();
-    if (!term) return data.rules;
-    return data.rules.filter((r) =>
+    if (!term) return all;
+    return all.filter((r) =>
       [r.rule_number, r.title, r.requirement, r.source_section]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(term)),
     );
-  }, [data.rules, q]);
+  }, [all, q]);
 
   return (
     <PublicShell active="rules">
@@ -70,7 +83,7 @@ function RulesPage() {
 
       <div className="mt-5 space-y-3">
         {rules.map((r) => (
-          <Card key={String(r.id)}>
+          <Card key={r.id}>
             <CardHeader className="pb-3">
               <div className="flex flex-wrap items-center gap-2">
                 <CardTitle className="text-base">

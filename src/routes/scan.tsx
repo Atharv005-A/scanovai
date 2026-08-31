@@ -330,10 +330,10 @@ function GuestScan() {
                         </div>
                       ))}
                     </dl>
-                    {result.missing.length > 0 && (
+                    {(result.missing ?? []).length > 0 && (
                       <p className="mt-3 text-sm text-muted-foreground">
                         Not found in the photographs:{" "}
-                        {result.missing.map((m) => FIELD_LABELS[m] ?? m).join(", ")}
+                        {(result.missing ?? []).map((m) => FIELD_LABELS[m] ?? m).join(", ")}
                       </p>
                     )}
                   </div>

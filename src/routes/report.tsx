@@ -69,7 +69,10 @@ function ReportPage() {
   });
 
   function useMyLocation() {
-    if (!navigator.geolocation) return toast.error("This browser cannot share a location.");
+    if (!navigator.geolocation) {
+      toast.error("This browser cannot share a location.");
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
