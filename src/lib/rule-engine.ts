@@ -9,7 +9,12 @@
  * AI output is treated as evidence about the package, not as law.
  */
 
-import { parseQuantity, type CheckResult } from "./domain";
+import { parseQuantity, isCategoryGroup, CATEGORY_GROUPS, type CheckResult } from "./domain";
+
+/** Specific commodities that sit inside a simple group, for applicability. */
+const GROUP_MEMBERS: Record<string, string[]> = Object.fromEntries(
+  CATEGORY_GROUPS.map((g) => [g.value, g.members]),
+);
 
 export interface RuleRow {
   id: string;
