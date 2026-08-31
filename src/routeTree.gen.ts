@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ReportRouteImport } from './routes/report'
+import { Route as RulesRouteImport } from './routes/rules'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as TrackRouteImport } from './routes/track'
 import { Route as AuthenticatedAuthorityRouteImport } from './routes/_authenticated/authority'
@@ -41,6 +42,11 @@ const AuthRoute = AuthRouteImport.update({
 const ReportRoute = ReportRouteImport.update({
   id: '/report',
   path: '/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RulesRoute = RulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ScanRoute = ScanRouteImport.update({
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
   '/report': typeof ReportRoute
+  '/rules': typeof RulesRoute
   '/scan': typeof ScanRoute
   '/track': typeof TrackRoute
   '/authority': typeof AuthenticatedAuthorityRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
   '/report': typeof ReportRoute
+  '/rules': typeof RulesRoute
   '/scan': typeof ScanRoute
   '/track': typeof TrackRoute
   '/authority': typeof AuthenticatedAuthorityRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/report': typeof ReportRoute
+  '/rules': typeof RulesRoute
   '/scan': typeof ScanRoute
   '/track': typeof TrackRoute
   '/_authenticated/authority': typeof AuthenticatedAuthorityRoute
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/report'
+    | '/rules'
     | '/scan'
     | '/track'
     | '/authority'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/report'
+    | '/rules'
     | '/scan'
     | '/track'
     | '/authority'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/report'
+    | '/rules'
     | '/scan'
     | '/track'
     | '/_authenticated/authority'
@@ -198,6 +210,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
   ReportRoute: typeof ReportRoute
+  RulesRoute: typeof RulesRoute
   ScanRoute: typeof ScanRoute
   TrackRoute: typeof TrackRoute
 }
@@ -230,6 +243,13 @@ declare module '@tanstack/react-router' {
       path: '/report'
       fullPath: '/report'
       preLoaderRoute: typeof ReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rules': {
+      id: '/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof RulesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/scan': {
@@ -343,6 +363,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
   ReportRoute: ReportRoute,
+  RulesRoute: RulesRoute,
   ScanRoute: ScanRoute,
   TrackRoute: TrackRoute,
 }
