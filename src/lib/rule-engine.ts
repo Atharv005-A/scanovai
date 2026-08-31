@@ -411,7 +411,15 @@ export function evaluateRules(
         const required = map[ctx.category];
         if (!required) {
           checks.push(
-            base(rule, value, "not_applicable", 0, "This commodity is not listed in the Third Schedule."),
+            isCategoryGroup(ctx.category)
+              ? base(
+                  rule,
+                  value,
+                  "manual_verification_required",
+                  0,
+                  "Only a broad product group was recorded, so the Third Schedule entry for this exact commodity must be checked by hand.",
+                )
+              : base(rule, value, "not_applicable", 0, "This commodity is not listed in the Third Schedule."),
           );
           break;
         }
