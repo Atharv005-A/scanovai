@@ -128,59 +128,320 @@ export type Database = {
           },
         ]
       }
+      authority_request_responses: {
+        Row: {
+          created_at: string
+          evidence_path: string | null
+          id: string
+          message: string
+          request_id: string
+          responder_id: string
+        }
+        Insert: {
+          created_at?: string
+          evidence_path?: string | null
+          id?: string
+          message: string
+          request_id: string
+          responder_id: string
+        }
+        Update: {
+          created_at?: string
+          evidence_path?: string | null
+          id?: string
+          message?: string
+          request_id?: string
+          responder_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "authority_request_responses_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "authority_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      authority_requests: {
+        Row: {
+          authority_id: string | null
+          batch_id: string | null
+          created_at: string
+          created_by: string
+          due_date: string | null
+          id: string
+          inspection_id: string | null
+          manufacturer_id: string | null
+          message: string
+          product_id: string | null
+          request_code: string
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          authority_id?: string | null
+          batch_id?: string | null
+          created_at?: string
+          created_by: string
+          due_date?: string | null
+          id?: string
+          inspection_id?: string | null
+          manufacturer_id?: string | null
+          message: string
+          product_id?: string | null
+          request_code?: string
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          authority_id?: string | null
+          batch_id?: string | null
+          created_at?: string
+          created_by?: string
+          due_date?: string | null
+          id?: string
+          inspection_id?: string | null
+          manufacturer_id?: string | null
+          message?: string
+          product_id?: string | null
+          request_code?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "authority_requests_authority_id_fkey"
+            columns: ["authority_id"]
+            isOneToOne: false
+            referencedRelation: "authorities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authority_requests_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authority_requests_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: false
+            referencedRelation: "inspections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authority_requests_manufacturer_id_fkey"
+            columns: ["manufacturer_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authority_requests_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      batches: {
+        Row: {
+          batch_code: string
+          created_at: string
+          created_by: string
+          declared_mrp: number | null
+          declared_net_quantity: string | null
+          expiry_date: string | null
+          id: string
+          notes: string | null
+          packing_date: string | null
+          product_id: string
+          production_date: string | null
+          quantity_produced: number | null
+          quantity_unit: string | null
+          status: Database["public"]["Enums"]["batch_status"]
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          batch_code: string
+          created_at?: string
+          created_by: string
+          declared_mrp?: number | null
+          declared_net_quantity?: string | null
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          packing_date?: string | null
+          product_id: string
+          production_date?: string | null
+          quantity_produced?: number | null
+          quantity_unit?: string | null
+          status?: Database["public"]["Enums"]["batch_status"]
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          batch_code?: string
+          created_at?: string
+          created_by?: string
+          declared_mrp?: number | null
+          declared_net_quantity?: string | null
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          packing_date?: string | null
+          product_id?: string
+          production_date?: string | null
+          quantity_produced?: number | null
+          quantity_unit?: string | null
+          status?: Database["public"]["Enums"]["batch_status"]
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batches_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      complaint_updates: {
+        Row: {
+          actor_id: string | null
+          complaint_id: string
+          created_at: string
+          id: string
+          is_public: boolean
+          note: string
+          status: Database["public"]["Enums"]["complaint_status"] | null
+        }
+        Insert: {
+          actor_id?: string | null
+          complaint_id: string
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          note?: string
+          status?: Database["public"]["Enums"]["complaint_status"] | null
+        }
+        Update: {
+          actor_id?: string | null
+          complaint_id?: string
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          note?: string
+          status?: Database["public"]["Enums"]["complaint_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaint_updates_complaint_id_fkey"
+            columns: ["complaint_id"]
+            isOneToOne: false
+            referencedRelation: "complaints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       complaints: {
         Row: {
+          ai_classification: Json | null
           assigned_to: string | null
           authority_id: string | null
           barcode: string | null
-          complainant_id: string
+          category: string | null
+          complainant_id: string | null
           complaint_code: string
           created_at: string
           description: string
+          duplicate_of: string | null
+          guest_email: string | null
+          guest_name: string | null
           id: string
           image_path: string | null
           latitude: number | null
           longitude: number | null
           manufacturer_name: string | null
+          office_id: string | null
+          package_scan_id: string | null
+          priority: string
+          product_id: string | null
           product_name: string
+          region: string | null
           resolution_note: string | null
+          source: Database["public"]["Enums"]["scan_source"]
           status: Database["public"]["Enums"]["complaint_status"]
+          tracking_token: string | null
           updated_at: string
         }
         Insert: {
+          ai_classification?: Json | null
           assigned_to?: string | null
           authority_id?: string | null
           barcode?: string | null
-          complainant_id: string
+          category?: string | null
+          complainant_id?: string | null
           complaint_code?: string
           created_at?: string
           description: string
+          duplicate_of?: string | null
+          guest_email?: string | null
+          guest_name?: string | null
           id?: string
           image_path?: string | null
           latitude?: number | null
           longitude?: number | null
           manufacturer_name?: string | null
+          office_id?: string | null
+          package_scan_id?: string | null
+          priority?: string
+          product_id?: string | null
           product_name: string
+          region?: string | null
           resolution_note?: string | null
+          source?: Database["public"]["Enums"]["scan_source"]
           status?: Database["public"]["Enums"]["complaint_status"]
+          tracking_token?: string | null
           updated_at?: string
         }
         Update: {
+          ai_classification?: Json | null
           assigned_to?: string | null
           authority_id?: string | null
           barcode?: string | null
-          complainant_id?: string
+          category?: string | null
+          complainant_id?: string | null
           complaint_code?: string
           created_at?: string
           description?: string
+          duplicate_of?: string | null
+          guest_email?: string | null
+          guest_name?: string | null
           id?: string
           image_path?: string | null
           latitude?: number | null
           longitude?: number | null
           manufacturer_name?: string | null
+          office_id?: string | null
+          package_scan_id?: string | null
+          priority?: string
+          product_id?: string | null
           product_name?: string
+          region?: string | null
           resolution_note?: string | null
+          source?: Database["public"]["Enums"]["scan_source"]
           status?: Database["public"]["Enums"]["complaint_status"]
+          tracking_token?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -189,6 +450,34 @@ export type Database = {
             columns: ["authority_id"]
             isOneToOne: false
             referencedRelation: "authorities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "complaints_duplicate_of_fkey"
+            columns: ["duplicate_of"]
+            isOneToOne: false
+            referencedRelation: "complaints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "complaints_office_id_fkey"
+            columns: ["office_id"]
+            isOneToOne: false
+            referencedRelation: "offices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "complaints_package_scan_id_fkey"
+            columns: ["package_scan_id"]
+            isOneToOne: false
+            referencedRelation: "package_scans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "complaints_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -201,8 +490,10 @@ export type Database = {
           evidence_image_id: string | null
           expected_condition: string | null
           explanation: string
+          field_key: string | null
           id: string
           inspection_id: string
+          previous_result: Database["public"]["Enums"]["check_result"] | null
           requirement: string
           result: Database["public"]["Enums"]["check_result"]
           rule_code: string
@@ -220,8 +511,10 @@ export type Database = {
           evidence_image_id?: string | null
           expected_condition?: string | null
           explanation?: string
+          field_key?: string | null
           id?: string
           inspection_id: string
+          previous_result?: Database["public"]["Enums"]["check_result"] | null
           requirement: string
           result: Database["public"]["Enums"]["check_result"]
           rule_code: string
@@ -239,8 +532,10 @@ export type Database = {
           evidence_image_id?: string | null
           expected_condition?: string | null
           explanation?: string
+          field_key?: string | null
           id?: string
           inspection_id?: string
+          previous_result?: Database["public"]["Enums"]["check_result"] | null
           requirement?: string
           result?: Database["public"]["Enums"]["check_result"]
           rule_code?: string
@@ -322,6 +617,10 @@ export type Database = {
           field_label: string
           id: string
           inspection_id: string
+          ocr_bbox: Json | null
+          ocr_snippet: string | null
+          original_confidence: number | null
+          original_value: string | null
           source_image_id: string | null
           updated_at: string
           value: string | null
@@ -336,6 +635,10 @@ export type Database = {
           field_label: string
           id?: string
           inspection_id: string
+          ocr_bbox?: Json | null
+          ocr_snippet?: string | null
+          original_confidence?: number | null
+          original_value?: string | null
           source_image_id?: string | null
           updated_at?: string
           value?: string | null
@@ -350,6 +653,10 @@ export type Database = {
           field_label?: string
           id?: string
           inspection_id?: string
+          ocr_bbox?: Json | null
+          ocr_snippet?: string | null
+          original_confidence?: number | null
+          original_value?: string | null
           source_image_id?: string | null
           updated_at?: string
           value?: string | null
@@ -374,10 +681,13 @@ export type Database = {
       extractions: {
         Row: {
           created_at: string
+          duration_ms: number | null
           error_message: string | null
           id: string
+          input_source: string
           inspection_id: string
           model: string | null
+          ocr_result_id: string | null
           provider: string
           raw_text: string | null
           status: string
@@ -385,10 +695,13 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          duration_ms?: number | null
           error_message?: string | null
           id?: string
+          input_source?: string
           inspection_id: string
           model?: string | null
+          ocr_result_id?: string | null
           provider?: string
           raw_text?: string | null
           status?: string
@@ -396,10 +709,13 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          duration_ms?: number | null
           error_message?: string | null
           id?: string
+          input_source?: string
           inspection_id?: string
           model?: string | null
+          ocr_result_id?: string | null
           provider?: string
           raw_text?: string | null
           status?: string
@@ -411,6 +727,13 @@ export type Database = {
             columns: ["inspection_id"]
             isOneToOne: false
             referencedRelation: "inspections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "extractions_ocr_result_id_fkey"
+            columns: ["ocr_result_id"]
+            isOneToOne: false
+            referencedRelation: "ocr_results"
             referencedColumns: ["id"]
           },
         ]
@@ -456,12 +779,65 @@ export type Database = {
           },
         ]
       }
+      inspection_amendments: {
+        Row: {
+          applied_at: string | null
+          approved_by: string | null
+          changes: Json
+          created_at: string
+          decided_at: string | null
+          id: string
+          inspection_id: string
+          reason: string
+          requested_by: string
+          status: Database["public"]["Enums"]["request_status"]
+        }
+        Insert: {
+          applied_at?: string | null
+          approved_by?: string | null
+          changes?: Json
+          created_at?: string
+          decided_at?: string | null
+          id?: string
+          inspection_id: string
+          reason: string
+          requested_by: string
+          status?: Database["public"]["Enums"]["request_status"]
+        }
+        Update: {
+          applied_at?: string | null
+          approved_by?: string | null
+          changes?: Json
+          created_at?: string
+          decided_at?: string | null
+          id?: string
+          inspection_id?: string
+          reason?: string
+          requested_by?: string
+          status?: Database["public"]["Enums"]["request_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_amendments_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: false
+            referencedRelation: "inspections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inspection_images: {
         Row: {
+          bytes: number | null
+          client_ref: string | null
           created_at: string
           height: number | null
           id: string
           inspection_id: string
+          kind: string
+          ocr_status: Database["public"]["Enums"]["ocr_status"]
+          preprocess_note: string | null
+          processed_path: string | null
           quality_note: string | null
           quality_score: number | null
           side: string
@@ -469,10 +845,16 @@ export type Database = {
           width: number | null
         }
         Insert: {
+          bytes?: number | null
+          client_ref?: string | null
           created_at?: string
           height?: number | null
           id?: string
           inspection_id: string
+          kind?: string
+          ocr_status?: Database["public"]["Enums"]["ocr_status"]
+          preprocess_note?: string | null
+          processed_path?: string | null
           quality_note?: string | null
           quality_score?: number | null
           side?: string
@@ -480,10 +862,16 @@ export type Database = {
           width?: number | null
         }
         Update: {
+          bytes?: number | null
+          client_ref?: string | null
           created_at?: string
           height?: number | null
           id?: string
           inspection_id?: string
+          kind?: string
+          ocr_status?: Database["public"]["Enums"]["ocr_status"]
+          preprocess_note?: string | null
+          processed_path?: string | null
           quality_note?: string | null
           quality_score?: number | null
           side?: string
@@ -502,11 +890,18 @@ export type Database = {
       }
       inspections: {
         Row: {
+          ai_suggested_category: string | null
+          amended_count: number
           assessment_score: number | null
           authority_id: string | null
           barcode: string | null
           barcode_format: string | null
+          batch_id: string | null
           category: string
+          category_confirmed: boolean
+          category_confirmed_at: string | null
+          category_confirmed_by: string | null
+          client_ref: string | null
           conflict_flag: boolean
           conflict_note: string | null
           created_at: string
@@ -515,29 +910,43 @@ export type Database = {
           inspector_id: string
           inspector_notes: string | null
           is_demo: boolean
+          last_synced_at: string | null
           latitude: number | null
           location_label: string | null
           longitude: number | null
           manufacturer_name: string | null
+          ocr_provider: string | null
+          ocr_status: Database["public"]["Enums"]["ocr_status"]
           office_id: string | null
           product_id: string | null
           product_name: string | null
           reference_code: string
+          region: string | null
+          registry_match: Database["public"]["Enums"]["registry_match"]
           result: Database["public"]["Enums"]["overall_result"]
+          review_requested: boolean
           rule_version_id: string | null
           status: Database["public"]["Enums"]["inspection_status"]
           supervisor_decision: string | null
           supervisor_id: string | null
           supervisor_notes: string | null
+          supervisor_reviewed_at: string | null
           sync_status: Database["public"]["Enums"]["sync_status"]
           updated_at: string
         }
         Insert: {
+          ai_suggested_category?: string | null
+          amended_count?: number
           assessment_score?: number | null
           authority_id?: string | null
           barcode?: string | null
           barcode_format?: string | null
+          batch_id?: string | null
           category?: string
+          category_confirmed?: boolean
+          category_confirmed_at?: string | null
+          category_confirmed_by?: string | null
+          client_ref?: string | null
           conflict_flag?: boolean
           conflict_note?: string | null
           created_at?: string
@@ -546,29 +955,43 @@ export type Database = {
           inspector_id: string
           inspector_notes?: string | null
           is_demo?: boolean
+          last_synced_at?: string | null
           latitude?: number | null
           location_label?: string | null
           longitude?: number | null
           manufacturer_name?: string | null
+          ocr_provider?: string | null
+          ocr_status?: Database["public"]["Enums"]["ocr_status"]
           office_id?: string | null
           product_id?: string | null
           product_name?: string | null
           reference_code?: string
+          region?: string | null
+          registry_match?: Database["public"]["Enums"]["registry_match"]
           result?: Database["public"]["Enums"]["overall_result"]
+          review_requested?: boolean
           rule_version_id?: string | null
           status?: Database["public"]["Enums"]["inspection_status"]
           supervisor_decision?: string | null
           supervisor_id?: string | null
           supervisor_notes?: string | null
+          supervisor_reviewed_at?: string | null
           sync_status?: Database["public"]["Enums"]["sync_status"]
           updated_at?: string
         }
         Update: {
+          ai_suggested_category?: string | null
+          amended_count?: number
           assessment_score?: number | null
           authority_id?: string | null
           barcode?: string | null
           barcode_format?: string | null
+          batch_id?: string | null
           category?: string
+          category_confirmed?: boolean
+          category_confirmed_at?: string | null
+          category_confirmed_by?: string | null
+          client_ref?: string | null
           conflict_flag?: boolean
           conflict_note?: string | null
           created_at?: string
@@ -577,20 +1000,27 @@ export type Database = {
           inspector_id?: string
           inspector_notes?: string | null
           is_demo?: boolean
+          last_synced_at?: string | null
           latitude?: number | null
           location_label?: string | null
           longitude?: number | null
           manufacturer_name?: string | null
+          ocr_provider?: string | null
+          ocr_status?: Database["public"]["Enums"]["ocr_status"]
           office_id?: string | null
           product_id?: string | null
           product_name?: string | null
           reference_code?: string
+          region?: string | null
+          registry_match?: Database["public"]["Enums"]["registry_match"]
           result?: Database["public"]["Enums"]["overall_result"]
+          review_requested?: boolean
           rule_version_id?: string | null
           status?: Database["public"]["Enums"]["inspection_status"]
           supervisor_decision?: string | null
           supervisor_id?: string | null
           supervisor_notes?: string | null
+          supervisor_reviewed_at?: string | null
           sync_status?: Database["public"]["Enums"]["sync_status"]
           updated_at?: string
         }
@@ -600,6 +1030,13 @@ export type Database = {
             columns: ["authority_id"]
             isOneToOne: false
             referencedRelation: "authorities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspections_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
             referencedColumns: ["id"]
           },
           {
@@ -628,71 +1065,183 @@ export type Database = {
       manufacturers: {
         Row: {
           address: string | null
+          city: string | null
           contact_email: string | null
           contact_phone: string | null
           country: string | null
           created_at: string
+          gstin: string | null
           id: string
           is_demo: boolean
           name: string
           owner_id: string | null
+          pincode: string | null
           registration_no: string | null
+          state: string | null
+          status: string
+          updated_at: string
         }
         Insert: {
           address?: string | null
+          city?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           country?: string | null
           created_at?: string
+          gstin?: string | null
           id?: string
           is_demo?: boolean
           name: string
           owner_id?: string | null
+          pincode?: string | null
           registration_no?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
         }
         Update: {
           address?: string | null
+          city?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           country?: string | null
           created_at?: string
+          gstin?: string | null
           id?: string
           is_demo?: boolean
           name?: string
           owner_id?: string | null
+          pincode?: string | null
           registration_no?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
       notifications: {
         Row: {
           body: string | null
+          channel: string
           created_at: string
+          email_error: string | null
+          email_status: string | null
+          entity: string | null
+          entity_id: string | null
           id: string
           is_read: boolean
+          kind: string
           link: string | null
           title: string
           user_id: string
         }
         Insert: {
           body?: string | null
+          channel?: string
           created_at?: string
+          email_error?: string | null
+          email_status?: string | null
+          entity?: string | null
+          entity_id?: string | null
           id?: string
           is_read?: boolean
+          kind?: string
           link?: string | null
           title: string
           user_id: string
         }
         Update: {
           body?: string | null
+          channel?: string
           created_at?: string
+          email_error?: string | null
+          email_status?: string | null
+          entity?: string | null
+          entity_id?: string | null
           id?: string
           is_read?: boolean
+          kind?: string
           link?: string | null
           title?: string
           user_id?: string
         }
         Relationships: []
+      }
+      ocr_results: {
+        Row: {
+          blocks: Json
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          image_id: string | null
+          inspection_id: string | null
+          mean_confidence: number | null
+          model: string | null
+          package_scan_id: string | null
+          provider: string
+          provider_label: string
+          raw_text: string | null
+          status: Database["public"]["Enums"]["ocr_status"]
+          word_count: number | null
+        }
+        Insert: {
+          blocks?: Json
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          image_id?: string | null
+          inspection_id?: string | null
+          mean_confidence?: number | null
+          model?: string | null
+          package_scan_id?: string | null
+          provider: string
+          provider_label?: string
+          raw_text?: string | null
+          status?: Database["public"]["Enums"]["ocr_status"]
+          word_count?: number | null
+        }
+        Update: {
+          blocks?: Json
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          image_id?: string | null
+          inspection_id?: string | null
+          mean_confidence?: number | null
+          model?: string | null
+          package_scan_id?: string | null
+          provider?: string
+          provider_label?: string
+          raw_text?: string | null
+          status?: Database["public"]["Enums"]["ocr_status"]
+          word_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ocr_results_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_images"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ocr_results_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: false
+            referencedRelation: "inspections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ocr_results_package_scan_id_fkey"
+            columns: ["package_scan_id"]
+            isOneToOne: false
+            referencedRelation: "package_scans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       offices: {
         Row: {
@@ -739,42 +1288,248 @@ export type Database = {
           },
         ]
       }
+      package_scans: {
+        Row: {
+          assessment: Json
+          barcode: string | null
+          barcode_format: string | null
+          batch_id: string | null
+          category: string | null
+          client_ref: string | null
+          created_at: string
+          id: string
+          image_path: string | null
+          inspection_id: string | null
+          latitude: number | null
+          longitude: number | null
+          mismatch_notes: string | null
+          observed: Json
+          ocr_provider: string | null
+          ocr_status: Database["public"]["Enums"]["ocr_status"]
+          product_id: string | null
+          region: string | null
+          registry_match: Database["public"]["Enums"]["registry_match"]
+          scan_code: string
+          scanned_by: string | null
+          source: Database["public"]["Enums"]["scan_source"]
+        }
+        Insert: {
+          assessment?: Json
+          barcode?: string | null
+          barcode_format?: string | null
+          batch_id?: string | null
+          category?: string | null
+          client_ref?: string | null
+          created_at?: string
+          id?: string
+          image_path?: string | null
+          inspection_id?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          mismatch_notes?: string | null
+          observed?: Json
+          ocr_provider?: string | null
+          ocr_status?: Database["public"]["Enums"]["ocr_status"]
+          product_id?: string | null
+          region?: string | null
+          registry_match?: Database["public"]["Enums"]["registry_match"]
+          scan_code?: string
+          scanned_by?: string | null
+          source?: Database["public"]["Enums"]["scan_source"]
+        }
+        Update: {
+          assessment?: Json
+          barcode?: string | null
+          barcode_format?: string | null
+          batch_id?: string | null
+          category?: string | null
+          client_ref?: string | null
+          created_at?: string
+          id?: string
+          image_path?: string | null
+          inspection_id?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          mismatch_notes?: string | null
+          observed?: Json
+          ocr_provider?: string | null
+          ocr_status?: Database["public"]["Enums"]["ocr_status"]
+          product_id?: string | null
+          region?: string | null
+          registry_match?: Database["public"]["Enums"]["registry_match"]
+          scan_code?: string
+          scanned_by?: string | null
+          source?: Database["public"]["Enums"]["scan_source"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "package_scans_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "package_scans_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: false
+            referencedRelation: "inspections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "package_scans_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_barcodes: {
+        Row: {
+          barcode: string
+          barcode_format: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_primary: boolean
+          product_id: string
+        }
+        Insert: {
+          barcode: string
+          barcode_format?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_primary?: boolean
+          product_id: string
+        }
+        Update: {
+          barcode?: string
+          barcode_format?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_primary?: boolean
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_barcodes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_declarations: {
+        Row: {
+          created_at: string
+          field_key: string
+          field_label: string
+          id: string
+          product_id: string
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          created_at?: string
+          field_key: string
+          field_label?: string
+          id?: string
+          product_id: string
+          updated_at?: string
+          value?: string | null
+        }
+        Update: {
+          created_at?: string
+          field_key?: string
+          field_label?: string
+          id?: string
+          product_id?: string
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_declarations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           barcode: string | null
           category: string
+          country_of_origin: string | null
           created_at: string
           created_by: string | null
           declared_mrp: number | null
           declared_net_quantity: string | null
           id: string
+          importer_name: string | null
           is_demo: boolean
           manufacturer_id: string | null
           name: string
+          pack_type: string | null
+          packer_name: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sku_code: string | null
+          status: Database["public"]["Enums"]["product_status"]
+          submitted_at: string | null
+          updated_at: string
         }
         Insert: {
           barcode?: string | null
           category?: string
+          country_of_origin?: string | null
           created_at?: string
           created_by?: string | null
           declared_mrp?: number | null
           declared_net_quantity?: string | null
           id?: string
+          importer_name?: string | null
           is_demo?: boolean
           manufacturer_id?: string | null
           name: string
+          pack_type?: string | null
+          packer_name?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sku_code?: string | null
+          status?: Database["public"]["Enums"]["product_status"]
+          submitted_at?: string | null
+          updated_at?: string
         }
         Update: {
           barcode?: string | null
           category?: string
+          country_of_origin?: string | null
           created_at?: string
           created_by?: string | null
           declared_mrp?: number | null
           declared_net_quantity?: string | null
           id?: string
+          importer_name?: string | null
           is_demo?: boolean
           manufacturer_id?: string | null
           name?: string
+          pack_type?: string | null
+          packer_name?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sku_code?: string | null
+          status?: Database["public"]["Enums"]["product_status"]
+          submitted_at?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -815,6 +1570,90 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      rate_limits: {
+        Row: {
+          bucket: string
+          count: number
+          id: string
+          subject: string
+          updated_at: string
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          count?: number
+          id?: string
+          subject: string
+          updated_at?: string
+          window_start: string
+        }
+        Update: {
+          bucket?: string
+          count?: number
+          id?: string
+          subject?: string
+          updated_at?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      registry_evidence: {
+        Row: {
+          batch_id: string | null
+          caption: string | null
+          created_at: string
+          height: number | null
+          id: string
+          kind: string
+          product_id: string
+          side: string | null
+          storage_path: string
+          uploaded_by: string
+          width: number | null
+        }
+        Insert: {
+          batch_id?: string | null
+          caption?: string | null
+          created_at?: string
+          height?: number | null
+          id?: string
+          kind?: string
+          product_id: string
+          side?: string | null
+          storage_path: string
+          uploaded_by: string
+          width?: number | null
+        }
+        Update: {
+          batch_id?: string | null
+          caption?: string | null
+          created_at?: string
+          height?: number | null
+          id?: string
+          kind?: string
+          product_id?: string
+          side?: string | null
+          storage_path?: string
+          uploaded_by?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registry_evidence_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registry_evidence_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reports: {
         Row: {
@@ -860,6 +1699,255 @@ export type Database = {
             columns: ["rule_version_id"]
             isOneToOne: false
             referencedRelation: "rule_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      retail_scans: {
+        Row: {
+          alert: Database["public"]["Enums"]["retail_alert"]
+          barcode: string
+          batch_id: string | null
+          created_at: string
+          held_for_review: boolean
+          id: string
+          note: string | null
+          package_scan_id: string | null
+          product_id: string | null
+          retailer_id: string
+          session_id: string | null
+        }
+        Insert: {
+          alert?: Database["public"]["Enums"]["retail_alert"]
+          barcode: string
+          batch_id?: string | null
+          created_at?: string
+          held_for_review?: boolean
+          id?: string
+          note?: string | null
+          package_scan_id?: string | null
+          product_id?: string | null
+          retailer_id: string
+          session_id?: string | null
+        }
+        Update: {
+          alert?: Database["public"]["Enums"]["retail_alert"]
+          barcode?: string
+          batch_id?: string | null
+          created_at?: string
+          held_for_review?: boolean
+          id?: string
+          note?: string | null
+          package_scan_id?: string | null
+          product_id?: string | null
+          retailer_id?: string
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "retail_scans_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "retail_scans_package_scan_id_fkey"
+            columns: ["package_scan_id"]
+            isOneToOne: false
+            referencedRelation: "package_scans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "retail_scans_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "retail_scans_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "retail_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      retail_sessions: {
+        Row: {
+          closed_at: string | null
+          id: string
+          location_label: string | null
+          opened_at: string
+          retailer_id: string
+          store_name: string | null
+        }
+        Insert: {
+          closed_at?: string | null
+          id?: string
+          location_label?: string | null
+          opened_at?: string
+          retailer_id: string
+          store_name?: string | null
+        }
+        Update: {
+          closed_at?: string | null
+          id?: string
+          location_label?: string | null
+          opened_at?: string
+          retailer_id?: string
+          store_name?: string | null
+        }
+        Relationships: []
+      }
+      role_grants: {
+        Row: {
+          authority_id: string | null
+          created_at: string
+          granted_by: string | null
+          id: string
+          reason: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          authority_id?: string | null
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          authority_id?: string | null
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_grants_authority_id_fkey"
+            columns: ["authority_id"]
+            isOneToOne: false
+            referencedRelation: "authorities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_invitations: {
+        Row: {
+          authority_id: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          email: string | null
+          expires_at: string
+          id: string
+          is_active: boolean
+          max_uses: number
+          note: string | null
+          office_id: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          uses: number
+        }
+        Insert: {
+          authority_id?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+          note?: string | null
+          office_id?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          uses?: number
+        }
+        Update: {
+          authority_id?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+          note?: string | null
+          office_id?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          uses?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_invitations_authority_id_fkey"
+            columns: ["authority_id"]
+            isOneToOne: false
+            referencedRelation: "authorities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_invitations_office_id_fkey"
+            columns: ["office_id"]
+            isOneToOne: false
+            referencedRelation: "offices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_requests: {
+        Row: {
+          authority_id: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          justification: string | null
+          requested_role: Database["public"]["Enums"]["app_role"]
+          status: Database["public"]["Enums"]["request_status"]
+          user_id: string
+        }
+        Insert: {
+          authority_id?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          justification?: string | null
+          requested_role: Database["public"]["Enums"]["app_role"]
+          status?: Database["public"]["Enums"]["request_status"]
+          user_id: string
+        }
+        Update: {
+          authority_id?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          justification?: string | null
+          requested_role?: Database["public"]["Enums"]["app_role"]
+          status?: Database["public"]["Enums"]["request_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_requests_authority_id_fkey"
+            columns: ["authority_id"]
+            isOneToOne: false
+            referencedRelation: "authorities"
             referencedColumns: ["id"]
           },
         ]
@@ -962,10 +2050,14 @@ export type Database = {
       sync_queue: {
         Row: {
           attempts: number
+          client_op_id: string | null
+          completed_at: string | null
           created_at: string
+          entity: string
           id: string
           inspection_id: string | null
           last_error: string | null
+          next_attempt_at: string
           operation: string
           payload: Json
           status: Database["public"]["Enums"]["sync_status"]
@@ -974,10 +2066,14 @@ export type Database = {
         }
         Insert: {
           attempts?: number
+          client_op_id?: string | null
+          completed_at?: string | null
           created_at?: string
+          entity?: string
           id?: string
           inspection_id?: string | null
           last_error?: string | null
+          next_attempt_at?: string
           operation: string
           payload?: Json
           status?: Database["public"]["Enums"]["sync_status"]
@@ -986,10 +2082,14 @@ export type Database = {
         }
         Update: {
           attempts?: number
+          client_op_id?: string | null
+          completed_at?: string | null
           created_at?: string
+          entity?: string
           id?: string
           inspection_id?: string | null
           last_error?: string | null
+          next_attempt_at?: string
           operation?: string
           payload?: Json
           status?: Database["public"]["Enums"]["sync_status"]
@@ -1024,9 +2124,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_inspection_amendment: {
+        Args: { _amendment_id: string }
+        Returns: Json
+      }
+      can_view_authority_request: {
+        Args: { _request_id: string }
+        Returns: boolean
+      }
+      can_view_complaint: { Args: { _complaint_id: string }; Returns: boolean }
       can_view_inspection: {
         Args: { _inspection_id: string }
         Returns: boolean
+      }
+      consume_rate_limit: {
+        Args: {
+          _bucket: string
+          _limit: number
+          _subject: string
+          _window_seconds: number
+        }
+        Returns: boolean
+      }
+      grant_role: {
+        Args: {
+          _reason: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: Json
       }
       has_role: {
         Args: {
@@ -1035,9 +2161,32 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_authority_staff: { Args: { _authority_id: string }; Returns: boolean }
       is_gov_staff: { Args: { _user_id: string }; Returns: boolean }
       my_authority_id: { Args: never; Returns: string }
+      my_manufacturer_id: { Args: never; Returns: string }
       owns_inspection: { Args: { _inspection_id: string }; Returns: boolean }
+      owns_manufacturer: {
+        Args: { _manufacturer_id: string }
+        Returns: boolean
+      }
+      owns_product: { Args: { _product_id: string }; Returns: boolean }
+      product_is_active: { Args: { _product_id: string }; Returns: boolean }
+      public_barcode_lookup: { Args: { _barcode: string }; Returns: Json }
+      record_supervisor_decision: {
+        Args: { _decision: string; _inspection_id: string; _notes: string }
+        Returns: Json
+      }
+      redeem_role_invitation: { Args: { _code: string }; Returns: Json }
+      revoke_role: {
+        Args: {
+          _reason: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: Json
+      }
+      track_complaint: { Args: { _token: string }; Returns: Json }
     }
     Enums: {
       app_role:
@@ -1047,6 +2196,8 @@ export type Database = {
         | "manufacturer"
         | "authority_admin"
         | "system_admin"
+        | "retailer"
+      batch_status: "draft" | "submitted" | "active" | "recalled" | "closed"
       check_result:
         | "pass"
         | "fail"
@@ -1070,12 +2221,42 @@ export type Database = {
         | "checked"
         | "finalized"
         | "cancelled"
+      ocr_status:
+        | "pending"
+        | "processing"
+        | "succeeded"
+        | "failed"
+        | "not_configured"
+        | "skipped"
       overall_result:
         | "compliant"
         | "non_compliant"
         | "needs_review"
         | "unable_to_verify"
         | "pending"
+      product_status:
+        | "draft"
+        | "submitted"
+        | "active"
+        | "suspended"
+        | "rejected"
+      registry_match:
+        | "barcode_absent"
+        | "barcode_unknown"
+        | "product_found_batch_unknown"
+        | "batch_found"
+        | "match"
+        | "mismatch"
+        | "review"
+        | "insufficient_evidence"
+      request_status: "pending" | "approved" | "rejected" | "expired"
+      retail_alert:
+        | "verified"
+        | "potential_mismatch"
+        | "review_required"
+        | "product_not_found"
+        | "registry_unavailable"
+      scan_source: "public" | "retail" | "inspector"
       sync_status: "synced" | "pending" | "processing" | "failed"
     }
     CompositeTypes: {
@@ -1211,7 +2392,9 @@ export const Constants = {
         "manufacturer",
         "authority_admin",
         "system_admin",
+        "retailer",
       ],
+      batch_status: ["draft", "submitted", "active", "recalled", "closed"],
       check_result: [
         "pass",
         "fail",
@@ -1238,6 +2421,14 @@ export const Constants = {
         "finalized",
         "cancelled",
       ],
+      ocr_status: [
+        "pending",
+        "processing",
+        "succeeded",
+        "failed",
+        "not_configured",
+        "skipped",
+      ],
       overall_result: [
         "compliant",
         "non_compliant",
@@ -1245,6 +2436,26 @@ export const Constants = {
         "unable_to_verify",
         "pending",
       ],
+      product_status: ["draft", "submitted", "active", "suspended", "rejected"],
+      registry_match: [
+        "barcode_absent",
+        "barcode_unknown",
+        "product_found_batch_unknown",
+        "batch_found",
+        "match",
+        "mismatch",
+        "review",
+        "insufficient_evidence",
+      ],
+      request_status: ["pending", "approved", "rejected", "expired"],
+      retail_alert: [
+        "verified",
+        "potential_mismatch",
+        "review_required",
+        "product_not_found",
+        "registry_unavailable",
+      ],
+      scan_source: ["public", "retail", "inspector"],
       sync_status: ["synced", "pending", "processing", "failed"],
     },
   },

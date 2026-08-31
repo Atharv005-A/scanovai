@@ -146,9 +146,30 @@ export const ROLE_LABELS: Record<string, string> = {
   inspector: "Inspector",
   supervisor: "Supervisor",
   manufacturer: "Manufacturer / Packer",
+  retailer: "Retailer / Billing counter",
   authority_admin: "Authority administrator",
   system_admin: "System administrator",
 };
+
+export const ROLE_DESCRIPTIONS: Record<string, string> = {
+  citizen: "Scan products, understand label declarations and report suspected issues.",
+  inspector: "Carry out official inspections, apply the 2011 Rules and finalise reports.",
+  supervisor: "Review inspections submitted by the field team and record a decision.",
+  manufacturer: "Register products and batches in the registry and answer authority requests.",
+  retailer: "Check a package against the registry at the billing counter.",
+  authority_admin: "Manage the authority's team, offices, complaints and analytics.",
+  system_admin: "Operate the platform across all authorities.",
+};
+
+/** Roles a member of the public may request; each still needs approval. */
+export const REQUESTABLE_ROLES = [
+  "inspector",
+  "supervisor",
+  "manufacturer",
+  "retailer",
+  "authority_admin",
+] as const;
+
 
 export function bandFromConfidence(c: number): "high" | "medium" | "low" | "none" {
   if (c <= 0) return "none";
@@ -208,4 +229,172 @@ export function parseQuantity(raw: string | null | undefined): ParsedQuantity | 
   const info = UNIT_MAP[unit];
   if (!info || !Number.isFinite(value)) return null;
   return { value, unit, base: value * info.factor, type: info.type };
+}
+
+// ---------------------------------------------------------------------------
+// Product registry vocabulary
+// ---------------------------------------------------------------------------
+
+export type ProductStatus = "draft" | "submitted" | "active" | "suspended" | "rejected";
+
+export const PRODUCT_STATUS_LABELS: Record<ProductStatus, string> = {
+  draft: "Draft",
+  submitted: "Submitted for review",
+  active: "Active in registry",
+  suspended: "Suspended",
+  rejected: "Changes requested",
+};
+
+export const PRODUCT_STATUS_HINTS: Record<ProductStatus, string> = {
+  draft: "Only visible to you. Add declarations and a label image, then submit.",
+  submitted: "Waiting for an authority reviewer. You can still add batches.",
+  active: "Discoverable by barcode lookup, billing counters and inspectors.",
+  suspended: "Withdrawn from lookup. Historical inspections keep their evidence.",
+  rejected: "A reviewer asked for corrections. Update the record and resubmit.",
+};
+
+export type BatchStatus = "draft" | "submitted" | "active" | "recalled" | "closed";
+
+export const BATCH_STATUS_LABELS: Record<BatchStatus, string> = {
+  draft: "Draft",
+  submitted: "Submitted",
+  active: "Active",
+  recalled: "Recalled",
+  closed: "Closed",
+};
+
+export const BATCH_STATUS_HINTS: Record<BatchStatus, string> = {
+  draft: "Not yet submitted to the registry.",
+  submitted: "Submitted and awaiting authority acknowledgement.",
+  active: "In circulation and used for package comparison.",
+  recalled: "Recalled by the manufacturer.",
+  closed: "Production run finished; kept for traceability.",
+};
+
+export type RegistryMatch =
+  | "barcode_absent"
+  | "barcode_unknown"
+  | "product_found_batch_unknown"
+  | "batch_found"
+  | "match"
+  | "mismatch"
+  | "review"
+  | "insufficient_evidence";
+
+export const REGISTRY_MATCH_LABELS: Record<RegistryMatch, string> = {
+  barcode_absent: "No barcode on package",
+  barcode_unknown: "Barcode not in registry",
+  product_found_batch_unknown: "Product found, batch unknown",
+  batch_found: "Product and batch found",
+  match: "Package matches registry",
+  mismatch: "Package differs from registry",
+  review: "Registry comparison needs review",
+  insufficient_evidence: "Not enough package evidence to compare",
+};
+
+export const REGISTRY_MATCH_HINTS: Record<RegistryMatch, string> = {
+  barcode_absent: "No barcode was scanned or entered, so the package was identified from the label only.",
+  barcode_unknown:
+    "This barcode is not registered. That is not an offence by itself — many lawful packs are not in the registry.",
+  product_found_batch_unknown:
+    "The product is registered but the batch or lot number on the package is not on record.",
+  batch_found: "The product and the batch printed on the package are both on record.",
+  match: "Every comparable declaration on the package agrees with the registered record.",
+  mismatch:
+    "One or more declarations on the package differ from the registered record. A person must review this before any conclusion is drawn.",
+  review:
+    "The comparison was inconclusive — usually because a reading was uncertain. A person should confirm it.",
+  insufficient_evidence: "Too few declarations were read from the package to make a comparison.",
+};
+
+export type RetailAlert =
+  | "verified"
+  | "potential_mismatch"
+  | "review_required"
+  | "product_not_found"
+  | "registry_unavailable";
+
+export const RETAIL_ALERT_LABELS: Record<RetailAlert, string> = {
+  verified: "Verified — no flag",
+  potential_mismatch: "Potential mismatch",
+  review_required: "Review required",
+  product_not_found: "Product not found",
+  registry_unavailable: "Registry unavailable (offline)",
+};
+
+export const RETAIL_ALERT_HINTS: Record<RetailAlert, string> = {
+  verified: "This barcode resolves to an active registry record with no open flags.",
+  potential_mismatch:
+    "A previous scan of this product reported package data that differs from the registry. Check the pack before selling.",
+  review_required: "This product has an open review with the authority. Check the pack before selling.",
+  product_not_found:
+    "This barcode is not in the registry. Many lawful products are not registered — this is not proof of an offence.",
+  registry_unavailable:
+    "The registry could not be reached. The result shown is from the last cached lookup on this device, if any.",
+};
+
+export type SyncState = "synced" | "pending" | "processing" | "failed";
+
+export const SYNC_LABELS: Record<SyncState, string> = {
+  synced: "Synced",
+  pending: "Sync pending",
+  processing: "Processing",
+  failed: "Sync failed",
+};
+
+export type OcrStatus =
+  | "pending"
+  | "processing"
+  | "succeeded"
+  | "failed"
+  | "not_configured"
+  | "skipped";
+
+export const OCR_STATUS_LABELS: Record<OcrStatus, string> = {
+  pending: "Not read yet",
+  processing: "Reading",
+  succeeded: "Text read",
+  failed: "Reading failed",
+  not_configured: "Reader not configured",
+  skipped: "Reading skipped",
+};
+
+/** Declarations compared between a registered product and a physical package. */
+export const COMPARABLE_FIELDS: FieldKey[] = [
+  "commodity_name",
+  "manufacturer_name",
+  "net_quantity",
+  "mrp",
+  "country_of_origin",
+  "batch_number",
+];
+
+/** Normalises a scanned barcode for lookup: digits/letters only, upper case. */
+export function normaliseBarcode(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const cleaned = raw.replace(/[^0-9A-Za-z]/g, "").toUpperCase();
+  return cleaned.length >= 6 && cleaned.length <= 32 ? cleaned : null;
+}
+
+/** Money as printed on Indian packages: "MRP Rs. 45.00 (incl. of all taxes)". */
+export function parseMoney(raw: string | null | undefined): number | null {
+  if (!raw) return null;
+  const m = raw.replace(/,/g, "").match(/(\d+(?:\.\d{1,2})?)/);
+  if (!m) return null;
+  const value = Number(m[1]);
+  return Number.isFinite(value) ? value : null;
+}
+
+/** Loose text comparison used for names printed in varying styles. */
+export function looseTextEqual(a: string | null | undefined, b: string | null | undefined) {
+  const norm = (v: string | null | undefined) =>
+    (v ?? "")
+      .toLowerCase()
+      .replace(/\b(pvt|private|ltd|limited|llp|inc|co|company|india|foods|industries)\b/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  const na = norm(a);
+  const nb = norm(b);
+  if (!na || !nb) return false;
+  if (na === nb) return true;
+  return na.length > 4 && nb.length > 4 && (na.includes(nb) || nb.includes(na));
 }
