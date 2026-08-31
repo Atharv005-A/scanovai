@@ -79,7 +79,11 @@ export interface EvaluatedCheck {
 const LOW_CONFIDENCE = 0.6;
 
 function applies(rule: RuleRow, category: string) {
-  return rule.applicable_categories.includes("all") || rule.applicable_categories.includes(category);
+  if (rule.applicable_categories.includes("all")) return true;
+  if (rule.applicable_categories.includes(category)) return true;
+  // A simple group applies whenever any commodity inside it is covered.
+  const members = GROUP_MEMBERS[category];
+  return !!members && members.some((m) => rule.applicable_categories.includes(m));
 }
 
 function num(x: unknown, fallback: number) {
