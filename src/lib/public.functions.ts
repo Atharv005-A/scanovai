@@ -394,7 +394,7 @@ export const submitPublicComplaint = createServerFn({ method: "POST" })
     const limit = await rateLimit("public_complaint", who, 5, 3600);
     if (!limit.allowed) throw new Error(limit.message);
 
-    const token = randomToken(14);
+    const token = randomToken(24);
     let imagePath: string | null = null;
     if (data.imageBase64) {
       const img = decodeImage(data.imageBase64);
@@ -499,7 +499,7 @@ export const submitPublicComplaint = createServerFn({ method: "POST" })
   });
 
 export const trackPublicComplaint = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({ token: z.string().trim().min(6).max(40) }).parse(d))
+  .inputValidator((d: unknown) => z.object({ token: z.string().trim().min(14).max(64) }).parse(d))
   .handler(async ({ data }) => {
     const { publicSupabase, callerFingerprint, rateLimit } = await import("./public.server");
     const who = await callerFingerprint();
