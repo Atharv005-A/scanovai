@@ -14,7 +14,7 @@ import {
   locateSnippet,
   normaliseDeviceOcr,
   ocrConfigStatus,
-  runGoogleVisionOcr,
+  runServerSideOcr,
   type DeviceOcrPayload,
   type OcrBlock,
   type OcrOutcome,
@@ -123,9 +123,9 @@ export async function runServerOcr(
   const config = ocrConfigStatus();
   if (!config.primaryConfigured) {
     const outcome: OcrOutcome = {
-      provider: "google_vision",
+      provider: config.primary.id,
       providerLabel: config.primary.label,
-      model: "DOCUMENT_TEXT_DETECTION",
+      model: null,
       status: "not_configured",
       rawText: "",
       blocks: [],
@@ -136,7 +136,7 @@ export async function runServerOcr(
     };
     await sb
       .from("inspections")
-      .update({ ocr_status: "not_configured", ocr_provider: "google_vision" })
+      .update({ ocr_status: "not_configured", ocr_provider: config.primary.id })
       .eq("id", inspectionId);
     return { outcome, ocrResultId: null, imageCount: images.length };
   }
@@ -155,7 +155,7 @@ export async function runServerOcr(
     throw new Error("The stored images could not be opened for reading.");
   }
 
-  const outcome = await runGoogleVisionOcr(payloads);
+  const outcome = await runServerSideOcr(payloads);
   const ocrResultId = await storeOcrResult(sb, { inspectionId }, outcome);
 
   await sb
