@@ -354,7 +354,7 @@ function GuestScan() {
                     <div key={i} className="rounded-md border border-border p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="text-sm font-semibold">
-                          Rule {item.rule_number} — {item.title}
+                          {item.rule_number} — {item.title}
                         </p>
                         <ResultBadge result={item.result as CheckResult} />
                       </div>

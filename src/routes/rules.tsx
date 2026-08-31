@@ -87,7 +87,7 @@ function RulesPage() {
             <CardHeader className="pb-3">
               <div className="flex flex-wrap items-center gap-2">
                 <CardTitle className="text-base">
-                  Rule {r.rule_number} — {r.title}
+                  {r.rule_number} — {r.title}
                 </CardTitle>
                 <Badge variant="outline">{String(r.check_type).replace(/_/g, " ")}</Badge>
               </div>
