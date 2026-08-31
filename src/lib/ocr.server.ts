@@ -401,3 +401,168 @@ export function locateSnippet(blocks: OcrBlock[], snippet: string | null | undef
   }
   return best?.block ?? null;
 }
+
+// ---------------------------------------------------------------------------
+// Built-in server-side reader (vision transcription through the AI gateway).
+//
+// This engine is used ONLY to turn pixels into characters. It is prompted to
+// transcribe verbatim and is explicitly forbidden from summarising, correcting
+// or inferring anything. Legal decisions stay in rule-engine.ts.
+// ---------------------------------------------------------------------------
+
+const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const READER_MODEL = "google/gemini-2.5-flash";
+
+const TRANSCRIBE_PROMPT = `You are an optical character recognition engine.
+Transcribe EVERY piece of printed text visible on this package photograph, exactly as printed, line by line, preserving the original order, spelling, punctuation, numbers, units and currency symbols.
+Rules:
+- Do not translate, summarise, explain, correct spelling or add anything.
+- Do not guess text that is unreadable; write [unreadable] for an illegible line.
+- Output plain text lines only. No markdown, no commentary, no JSON.`;
+
+/**
+ * Reads printed text off package images using the built-in vision engine.
+ * `content` must be base64 without a data-URL prefix.
+ */
+export async function runBuiltInVisionOcr(
+  images: { content: string; side: string }[],
+): Promise<OcrOutcome> {
+  const base = {
+    provider: "lovable_ai_vision" as const,
+    providerLabel: OCR_PROVIDERS.lovable_ai_vision.label,
+    model: READER_MODEL,
+  };
+  const empty = (status: OcrRunStatus, error: string, durationMs = 0): OcrOutcome => ({
+    ...base,
+    status,
+    rawText: "",
+    blocks: [],
+    meanConfidence: null,
+    wordCount: 0,
+    durationMs,
+    error,
+  });
+
+  const apiKey = process.env["LOVABLE_API_KEY"];
+  if (!apiKey || apiKey.trim() === "")
+    return empty("not_configured", ocrConfigStatus().message);
+  if (images.length === 0) return empty("failed", "No images were supplied for reading.");
+
+  const started = Date.now();
+  const blocks: OcrBlock[] = [];
+  const parts: string[] = [];
+  const errors: string[] = [];
+  let words = 0;
+
+  const results = await Promise.all(
+    images.slice(0, 4).map(async (img, index) => {
+      try {
+        const res = await fetch(AI_GATEWAY, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey },
+          body: JSON.stringify({
+            model: READER_MODEL,
+            temperature: 0,
+            messages: [
+              {
+                role: "user",
+                content: [
+                  { type: "text", text: TRANSCRIBE_PROMPT },
+                  {
+                    type: "image_url",
+                    image_url: { url: `data:image/jpeg;base64,${img.content}` },
+                  },
+                ],
+              },
+            ],
+          }),
+        });
+        if (!res.ok) {
+          const body = await res.text();
+          console.error("[ocr] built-in reader error", res.status, body.slice(0, 400));
+          let message = "The label reader could not process this image. Retake it and try again.";
+          if (res.status === 402)
+            message = "AI usage credits are exhausted for this workspace, so the label could not be read.";
+          else if (res.status === 429)
+            message = "The label reader is busy right now. Wait a few seconds and retry.";
+          return { index, side: img.side, text: "", error: message };
+        }
+        const json = (await res.json()) as {
+          choices?: { message?: { content?: string } }[];
+        };
+        const text = (json.choices?.[0]?.message?.content ?? "").trim();
+        return { index, side: img.side, text, error: null as string | null };
+      } catch {
+        return {
+          index,
+          side: img.side,
+          text: "",
+          error: "The label reader could not be reached. Check the connection and retry.",
+        };
+      }
+    }),
+  );
+
+  for (const r of results) {
+    if (r.error) {
+      errors.push(r.error);
+      continue;
+    }
+    const cleaned = r.text.replace(/^```[a-z]*\n?/i, "").replace(/```$/, "").trim();
+    if (!cleaned) continue;
+    parts.push(`--- ${r.side} ---\n${cleaned}`);
+    const lines = cleaned
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0);
+    lines.forEach((line, i) => {
+      words += line.split(/\s+/).filter(Boolean).length;
+      const y0 = lines.length > 1 ? i / lines.length : 0;
+      const y1 = lines.length > 1 ? (i + 1) / lines.length : 1;
+      blocks.push({
+        text: line.slice(0, 600),
+        // Line-level transcription carries no per-word score; a deliberately
+        // conservative band keeps low-confidence fields in review.
+        confidence: 0.72,
+        bbox: { x0: 0, y0, x1: 1, y1 },
+        side: r.side,
+        imageIndex: r.index,
+      });
+    });
+  }
+
+  const rawText = parts.join("\n\n").trim();
+  if (!rawText)
+    return empty(
+      "failed",
+      errors[0] ??
+        "No readable text was found in these images. Retake the declaration panel closer and in better light.",
+      Date.now() - started,
+    );
+
+  return {
+    ...base,
+    status: "succeeded",
+    rawText: rawText.slice(0, 60000),
+    blocks: blocks.slice(0, 400),
+    meanConfidence: 0.72,
+    wordCount: words,
+    durationMs: Date.now() - started,
+    error: errors.length ? errors.join("; ") : null,
+  };
+}
+
+/**
+ * Single entry point for server-side reading: Google Cloud Vision when a key is
+ * configured, otherwise the built-in vision transcription engine.
+ */
+export async function runServerSideOcr(
+  images: { content: string; side: string }[],
+): Promise<OcrOutcome> {
+  if (googleVisionKey()) {
+    const outcome = await runGoogleVisionOcr(images);
+    if (outcome.status === "succeeded" || !builtInReaderAvailable()) return outcome;
+    console.warn("[ocr] vision failed, falling back to the built-in reader");
+  }
+  return runBuiltInVisionOcr(images);
+}
