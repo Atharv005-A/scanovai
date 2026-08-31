@@ -34,13 +34,23 @@ export interface DeclarationRow {
   source_image_id: string | null;
 }
 
+export interface RegistryDiffForEngine {
+  match: string;
+  headline: string;
+  differing: { label: string; registry_value: string | null; observed_value: string | null }[];
+  comparedCount: number;
+}
+
 export interface EngineContext {
   category: string;
   hasImages: boolean;
   hasExtraction: boolean;
   /** Product record resolved from a scanned barcode, when available. */
   knownProduct?: { declared_mrp: number | null; declared_net_quantity: string | null } | null;
+  /** Deterministic registry comparison, when a registered product was found. */
+  registry?: RegistryDiffForEngine | null;
 }
+
 
 export interface EvaluatedCheck {
   rule_id: string;
@@ -48,6 +58,8 @@ export interface EvaluatedCheck {
   rule_number: string;
   title: string;
   requirement: string;
+  /** Declaration this rule reads, so evidence can be linked back to it. */
+  field_key: string | null;
   detected_value: string | null;
   expected_condition: string;
   result: CheckResult;
@@ -57,6 +69,7 @@ export interface EvaluatedCheck {
   source_section: string;
   source_page: number | null;
 }
+
 
 const LOW_CONFIDENCE = 0.6;
 
@@ -126,6 +139,7 @@ export function evaluateRules(
         rule_number: rule.rule_number,
         title: rule.title,
         requirement: rule.requirement,
+        field_key: rule.field_key,
         detected_value: null,
         expected_condition: rule.requirement,
         result: "not_applicable",
@@ -158,6 +172,7 @@ export function evaluateRules(
         rule_number: r.rule_number,
         title: r.title,
         requirement: r.requirement,
+        field_key: r.field_key,
         detected_value: detected,
         expected_condition: expected,
         result,
@@ -465,6 +480,50 @@ export function evaluateRules(
       }
 
       case "cross_field": {
+        // Preferred source: the deterministic registry comparison, which knows
+        // about batches and normalises units and prices before comparing.
+        const reg = ctx.registry;
+        if (reg) {
+          if (reg.comparedCount === 0) {
+            checks.push(
+              base(
+                rule,
+                null,
+                "unable_to_verify",
+                0,
+                "A registered product was found, but nothing comparable was read from the package.",
+              ),
+            );
+            break;
+          }
+          if (reg.differing.length === 0) {
+            checks.push(
+              base(
+                rule,
+                `${reg.comparedCount} declaration${reg.comparedCount === 1 ? "" : "s"} compared`,
+                "pass",
+                conf,
+                "Every declaration that could be compared agrees with the registered product record.",
+              ),
+            );
+            break;
+          }
+          const summary = reg.differing
+            .map((d) => `${d.label}: registry “${d.registry_value ?? "—"}” vs package “${d.observed_value ?? "—"}”`)
+            .join("; ");
+          conflict = `Registry conflict: ${summary}.`;
+          checks.push(
+            base(
+              rule,
+              summary,
+              "needs_review",
+              conf,
+              `The package disagrees with the registered product record (${summary}). Registry data never overrides the physical package and a mismatch is not itself an offence: a person must establish which record is correct.`,
+            ),
+          );
+          break;
+        }
+
         const known = ctx.knownProduct;
         if (!known) {
           checks.push(
@@ -473,7 +532,7 @@ export function evaluateRules(
               null,
               "not_applicable",
               0,
-              "No product record was linked by barcode, so there is nothing to cross-verify the package against.",
+              "No registered product was matched for this package, so there is nothing to cross-verify it against.",
             ),
           );
           break;
@@ -514,6 +573,7 @@ export function evaluateRules(
         }
         break;
       }
+
 
       default:
         checks.push(
