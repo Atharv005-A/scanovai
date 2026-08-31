@@ -34,7 +34,7 @@ export const extractInspectionLabels = createServerFn({ method: "POST" })
     }
     if (signed.length === 0) throw new Error("The stored images could not be opened for reading.");
 
-    await supabase.from("inspections").update({ status: "extracting" }).eq("id", data.inspectionId);
+    await supabase.from("inspections").update({ status: "capturing" }).eq("id", data.inspectionId);
 
     try {
       const { extraction, model } = await extractFromImages(signed.map((s) => ({ url: s.url, side: s.side })));
@@ -118,7 +118,7 @@ export const extractInspectionLabels = createServerFn({ method: "POST" })
         error_message: message,
         structured: {} as never,
       });
-      await supabase.from("inspections").update({ status: "captured" }).eq("id", data.inspectionId);
+      await supabase.from("inspections").update({ status: "capturing" }).eq("id", data.inspectionId);
       await audit(supabase, userId, "extraction.failed", "inspection", data.inspectionId, {
         reason: message,
       });
@@ -193,7 +193,7 @@ export const correctDeclaration = createServerFn({ method: "POST" })
     await audit(supabase, userId, "declaration.corrected", "inspection", data.inspectionId, {
       previous_value: { [data.fieldKey]: existing?.value ?? null },
       new_value: { [data.fieldKey]: value },
-      reason: data.reason ?? null,
+      reason: data.reason ?? undefined,
     });
 
     const { data: hasChecks } = await supabase
@@ -233,7 +233,8 @@ export const finalizeInspection = createServerFn({ method: "POST" })
     const { error } = await supabase
       .from("inspections")
       .update({
-        status: data.needsSupervisorReview ? "review" : "finalized",
+        status: "finalized",
+        supervisor_decision: data.needsSupervisorReview ? "pending" : null,
         finalized_at: new Date().toISOString(),
         inspector_notes: data.notes ?? null,
       })

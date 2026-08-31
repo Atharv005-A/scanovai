@@ -10,33 +10,108 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthNewPasswordRouteImport } from './routes/auth.new-password'
+import { Route as AuthenticatedInspectionsIndexRouteImport } from './routes/_authenticated/inspections.index'
+import { Route as AuthenticatedInspectionsNewRouteImport } from './routes/_authenticated/inspections.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthNewPasswordRoute = AuthNewPasswordRouteImport.update({
+  id: '/new-password',
+  path: '/new-password',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthenticatedInspectionsIndexRoute =
+  AuthenticatedInspectionsIndexRouteImport.update({
+    id: '/inspections/',
+    path: '/inspections/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInspectionsNewRoute =
+  AuthenticatedInspectionsNewRouteImport.update({
+    id: '/inspections/new',
+    path: '/inspections/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/auth/new-password': typeof AuthNewPasswordRoute
+  '/inspections/new': typeof AuthenticatedInspectionsNewRoute
+  '/inspections/': typeof AuthenticatedInspectionsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/auth/new-password': typeof AuthNewPasswordRoute
+  '/inspections/new': typeof AuthenticatedInspectionsNewRoute
+  '/inspections': typeof AuthenticatedInspectionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/auth/new-password': typeof AuthNewPasswordRoute
+  '/_authenticated/inspections/new': typeof AuthenticatedInspectionsNewRoute
+  '/_authenticated/inspections/': typeof AuthenticatedInspectionsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/auth/new-password'
+    | '/inspections/new'
+    | '/inspections/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/auth/new-password'
+    | '/inspections/new'
+    | '/inspections'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/dashboard'
+    | '/auth/new-password'
+    | '/_authenticated/inspections/new'
+    | '/_authenticated/inspections/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +123,80 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/auth/new-password': {
+      id: '/auth/new-password'
+      path: '/new-password'
+      fullPath: '/auth/new-password'
+      preLoaderRoute: typeof AuthNewPasswordRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_authenticated/inspections/': {
+      id: '/_authenticated/inspections/'
+      path: '/inspections'
+      fullPath: '/inspections/'
+      preLoaderRoute: typeof AuthenticatedInspectionsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inspections/new': {
+      id: '/_authenticated/inspections/new'
+      path: '/inspections/new'
+      fullPath: '/inspections/new'
+      preLoaderRoute: typeof AuthenticatedInspectionsNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedInspectionsNewRoute: typeof AuthenticatedInspectionsNewRoute
+  AuthenticatedInspectionsIndexRoute: typeof AuthenticatedInspectionsIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedInspectionsNewRoute: AuthenticatedInspectionsNewRoute,
+  AuthenticatedInspectionsIndexRoute: AuthenticatedInspectionsIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface AuthRouteChildren {
+  AuthNewPasswordRoute: typeof AuthNewPasswordRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthNewPasswordRoute: AuthNewPasswordRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
