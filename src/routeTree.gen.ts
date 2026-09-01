@@ -19,6 +19,8 @@ import { Route as TrackRouteImport } from './routes/track'
 import { Route as AuthenticatedAuthorityRouteImport } from './routes/_authenticated/authority'
 import { Route as AuthenticatedComplaintsRouteImport } from './routes/_authenticated/complaints'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedGovernmentRouteImport } from './routes/_authenticated/government'
+import { Route as AuthenticatedInspectorRouteImport } from './routes/_authenticated/inspector'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
 import { Route as AuthNewPasswordRouteImport } from './routes/auth.new-password'
 import { Route as AuthenticatedInspectionsIndexRouteImport } from './routes/_authenticated/inspections.index'
@@ -74,6 +76,16 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGovernmentRoute = AuthenticatedGovernmentRouteImport.update({
+  id: '/government',
+  path: '/government',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedInspectorRoute = AuthenticatedInspectorRouteImport.update({
+  id: '/inspector',
+  path: '/inspector',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -113,6 +125,8 @@ export interface FileRoutesByFullPath {
   '/authority': typeof AuthenticatedAuthorityRoute
   '/complaints': typeof AuthenticatedComplaintsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/government': typeof AuthenticatedGovernmentRoute
+  '/inspector': typeof AuthenticatedInspectorRoute
   '/products': typeof AuthenticatedProductsRoute
   '/auth/new-password': typeof AuthNewPasswordRoute
   '/inspections/$id': typeof AuthenticatedInspectionsIdRoute
@@ -129,6 +143,8 @@ export interface FileRoutesByTo {
   '/authority': typeof AuthenticatedAuthorityRoute
   '/complaints': typeof AuthenticatedComplaintsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/government': typeof AuthenticatedGovernmentRoute
+  '/inspector': typeof AuthenticatedInspectorRoute
   '/products': typeof AuthenticatedProductsRoute
   '/auth/new-password': typeof AuthNewPasswordRoute
   '/inspections/$id': typeof AuthenticatedInspectionsIdRoute
@@ -147,6 +163,8 @@ export interface FileRoutesById {
   '/_authenticated/authority': typeof AuthenticatedAuthorityRoute
   '/_authenticated/complaints': typeof AuthenticatedComplaintsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/government': typeof AuthenticatedGovernmentRoute
+  '/_authenticated/inspector': typeof AuthenticatedInspectorRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
   '/auth/new-password': typeof AuthNewPasswordRoute
   '/_authenticated/inspections/$id': typeof AuthenticatedInspectionsIdRoute
@@ -165,6 +183,8 @@ export interface FileRouteTypes {
     | '/authority'
     | '/complaints'
     | '/dashboard'
+    | '/government'
+    | '/inspector'
     | '/products'
     | '/auth/new-password'
     | '/inspections/$id'
@@ -181,6 +201,8 @@ export interface FileRouteTypes {
     | '/authority'
     | '/complaints'
     | '/dashboard'
+    | '/government'
+    | '/inspector'
     | '/products'
     | '/auth/new-password'
     | '/inspections/$id'
@@ -198,6 +220,8 @@ export interface FileRouteTypes {
     | '/_authenticated/authority'
     | '/_authenticated/complaints'
     | '/_authenticated/dashboard'
+    | '/_authenticated/government'
+    | '/_authenticated/inspector'
     | '/_authenticated/products'
     | '/auth/new-password'
     | '/_authenticated/inspections/$id'
@@ -287,6 +311,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/government': {
+      id: '/_authenticated/government'
+      path: '/government'
+      fullPath: '/government'
+      preLoaderRoute: typeof AuthenticatedGovernmentRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inspector': {
+      id: '/_authenticated/inspector'
+      path: '/inspector'
+      fullPath: '/inspector'
+      preLoaderRoute: typeof AuthenticatedInspectorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/products': {
       id: '/_authenticated/products'
       path: '/products'
@@ -329,6 +367,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuthorityRoute: typeof AuthenticatedAuthorityRoute
   AuthenticatedComplaintsRoute: typeof AuthenticatedComplaintsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedGovernmentRoute: typeof AuthenticatedGovernmentRoute
+  AuthenticatedInspectorRoute: typeof AuthenticatedInspectorRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
   AuthenticatedInspectionsIdRoute: typeof AuthenticatedInspectionsIdRoute
   AuthenticatedInspectionsNewRoute: typeof AuthenticatedInspectionsNewRoute
@@ -339,6 +379,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAuthorityRoute: AuthenticatedAuthorityRoute,
   AuthenticatedComplaintsRoute: AuthenticatedComplaintsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedGovernmentRoute: AuthenticatedGovernmentRoute,
+  AuthenticatedInspectorRoute: AuthenticatedInspectorRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
   AuthenticatedInspectionsIdRoute: AuthenticatedInspectionsIdRoute,
   AuthenticatedInspectionsNewRoute: AuthenticatedInspectionsNewRoute,

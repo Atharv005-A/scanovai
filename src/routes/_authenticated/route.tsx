@@ -41,6 +41,18 @@ interface NavItem {
 const NAV: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   {
+    to: "/inspector",
+    label: "Inspector dashboard",
+    icon: Gauge,
+    roles: ["inspector", "supervisor", "authority_admin", "system_admin"],
+  },
+  {
+    to: "/government",
+    label: "Government dashboard",
+    icon: Landmark,
+    roles: ["supervisor", "authority_admin", "system_admin"],
+  },
+  {
     to: "/inspections",
     label: "Inspections",
     icon: ClipboardList,
@@ -55,6 +67,7 @@ const NAV: NavItem[] = [
     roles: ["authority_admin", "supervisor", "system_admin"],
   },
 ];
+
 
 function Shell() {
   const { profile, roles, primaryRole } = useAuth();
