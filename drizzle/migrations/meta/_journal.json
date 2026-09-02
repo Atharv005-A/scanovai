@@ -78,6 +78,13 @@
       "when": 1788176880213,
       "tag": "0010_revoke_anon_grants_on_registry_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1788322855913,
+      "tag": "0011_scope_authority_member_inserts",
+      "breakpoints": true
     }
   ]
 }

@@ -8,9 +8,12 @@ import {
   MessageSquareWarning,
   Package,
   Building2,
+  Gauge,
+  Landmark,
   LogOut,
   Menu,
 } from "lucide-react";
+
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";

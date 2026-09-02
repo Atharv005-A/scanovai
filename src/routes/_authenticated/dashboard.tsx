@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Plus, Sparkles, ClipboardList, MessageSquareWarning } from "lucide-react";
+import { Loader2, Plus, Sparkles, ClipboardList, MessageSquareWarning, Gauge, Landmark } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -92,12 +92,27 @@ function Dashboard() {
         </div>
         <div className="flex flex-wrap gap-2">
           {isGovStaff && (
+            <Button asChild variant="secondary">
+              <Link to="/inspector">
+                <Gauge className="mr-2 size-4" /> Inspector dashboard
+              </Link>
+            </Button>
+          )}
+          {roles.some((r) => ["supervisor", "authority_admin", "system_admin"].includes(r)) && (
+            <Button asChild variant="secondary">
+              <Link to="/government">
+                <Landmark className="mr-2 size-4" /> Government dashboard
+              </Link>
+            </Button>
+          )}
+          {isGovStaff && (
             <Button asChild>
               <Link to="/inspections/new">
                 <Plus className="mr-2 size-4" /> New inspection
               </Link>
             </Button>
           )}
+
           {isCitizen && (
             <Button asChild>
               <Link to="/complaints">
