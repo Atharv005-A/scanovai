@@ -356,6 +356,7 @@ export type Database = {
       complaints: {
         Row: {
           ai_classification: Json | null
+          assigned_at: string | null
           assigned_to: string | null
           authority_id: string | null
           barcode: string | null
@@ -369,6 +370,7 @@ export type Database = {
           guest_name: string | null
           id: string
           image_path: string | null
+          inspection_id: string | null
           latitude: number | null
           longitude: number | null
           manufacturer_name: string | null
@@ -386,6 +388,7 @@ export type Database = {
         }
         Insert: {
           ai_classification?: Json | null
+          assigned_at?: string | null
           assigned_to?: string | null
           authority_id?: string | null
           barcode?: string | null
@@ -399,6 +402,7 @@ export type Database = {
           guest_name?: string | null
           id?: string
           image_path?: string | null
+          inspection_id?: string | null
           latitude?: number | null
           longitude?: number | null
           manufacturer_name?: string | null
@@ -416,6 +420,7 @@ export type Database = {
         }
         Update: {
           ai_classification?: Json | null
+          assigned_at?: string | null
           assigned_to?: string | null
           authority_id?: string | null
           barcode?: string | null
@@ -429,6 +434,7 @@ export type Database = {
           guest_name?: string | null
           id?: string
           image_path?: string | null
+          inspection_id?: string | null
           latitude?: number | null
           longitude?: number | null
           manufacturer_name?: string | null
@@ -457,6 +463,13 @@ export type Database = {
             columns: ["duplicate_of"]
             isOneToOne: false
             referencedRelation: "complaints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "complaints_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: false
+            referencedRelation: "inspections"
             referencedColumns: ["id"]
           },
           {
