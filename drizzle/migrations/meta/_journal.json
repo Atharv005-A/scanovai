@@ -85,6 +85,13 @@
       "when": 1788322855913,
       "tag": "0011_scope_authority_member_inserts",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1788323467718,
+      "tag": "0012_complaint_inspection_link",
+      "breakpoints": true
     }
   ]
 }
