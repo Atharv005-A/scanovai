@@ -91,14 +91,14 @@ function Dashboard() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {isGovStaff && (
+          {roles.includes("inspector") && (
             <Button asChild variant="secondary">
               <Link to="/inspector">
                 <Gauge className="mr-2 size-4" /> Inspector dashboard
               </Link>
             </Button>
           )}
-          {roles.some((r) => ["supervisor", "authority_admin", "system_admin"].includes(r)) && (
+          {roles.some((r) => ["authority_admin", "system_admin"].includes(r)) && (
             <Button asChild variant="secondary">
               <Link to="/government">
                 <Landmark className="mr-2 size-4" /> Government dashboard
