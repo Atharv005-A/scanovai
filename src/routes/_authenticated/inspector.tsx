@@ -45,30 +45,38 @@ export const Route = createFileRoute("/_authenticated/inspector")({
 });
 
 function InspectorDashboard() {
-  const { roles, isGovStaff } = useAuth();
+  const { roles } = useAuth();
+  const isInspector = roles.includes("inspector");
   const load = useServerFn(inspectorDashboard);
 
   const q = useQuery({
     queryKey: ["dashboard", "inspector"],
     queryFn: () => load(),
-    enabled: isGovStaff,
+    enabled: isInspector,
   });
 
-  if (roles.length > 0 && !isGovStaff) {
+  if (roles.length > 0 && !isInspector) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Not available for your role</CardTitle>
+          <CardTitle className="text-lg">For inspectors only</CardTitle>
           <CardDescription>
-            The inspector dashboard is for field officers. Your account does not carry an inspection role.
+            This dashboard belongs to field inspectors. Ask a government authority administrator to grant you
+            the inspector role, or open your own dashboard instead.
           </CardDescription>
         </CardHeader>
+        <CardContent>
+          <Button asChild variant="outline">
+            <Link to="/dashboard">Go to my dashboard</Link>
+          </Button>
+        </CardContent>
       </Card>
     );
   }
 
   const d = q.data;
   const counts = d?.counts;
+
 
   return (
     <div className="space-y-8">
