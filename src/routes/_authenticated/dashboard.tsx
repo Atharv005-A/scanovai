@@ -59,6 +59,18 @@ function Dashboard() {
     },
   });
 
+  const myRequests = useQuery({
+    queryKey: ["my-role-requests"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("role_requests")
+        .select("id, requested_role, status, created_at, decided_at")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const demo = useMutation({
     mutationFn: () => seed(),
     onSuccess: () => {
@@ -91,14 +103,14 @@ function Dashboard() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {isGovStaff && (
+          {roles.includes("inspector") && (
             <Button asChild variant="secondary">
               <Link to="/inspector">
                 <Gauge className="mr-2 size-4" /> Inspector dashboard
               </Link>
             </Button>
           )}
-          {roles.some((r) => ["supervisor", "authority_admin", "system_admin"].includes(r)) && (
+          {roles.some((r) => ["authority_admin", "system_admin"].includes(r)) && (
             <Button asChild variant="secondary">
               <Link to="/government">
                 <Landmark className="mr-2 size-4" /> Government dashboard
@@ -132,6 +144,39 @@ function Dashboard() {
           )}
         </div>
       </div>
+
+      {(myRequests.data ?? []).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Your access request</CardTitle>
+            <CardDescription>
+              Staff roles are granted by a government authority administrator after review.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {(myRequests.data ?? []).map((r) => (
+              <div key={r.id} className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="font-medium capitalize">
+                  {String(r.requested_role).replace(/_/g, " ")}
+                </span>
+                <Badge
+                  variant={
+                    r.status === "approved" ? "default" : r.status === "pending" ? "outline" : "secondary"
+                  }
+                  className="capitalize"
+                >
+                  {r.status === "pending" ? "Awaiting approval" : r.status}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  Submitted {new Date(r.created_at).toLocaleDateString()}
+                </span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Stat label="Inspections" value={counts.total} loading={inspections.isLoading} />
