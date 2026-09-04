@@ -145,6 +145,39 @@ function Dashboard() {
         </div>
       </div>
 
+      {(myRequests.data ?? []).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Your access request</CardTitle>
+            <CardDescription>
+              Staff roles are granted by a government authority administrator after review.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {(myRequests.data ?? []).map((r) => (
+              <div key={r.id} className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="font-medium capitalize">
+                  {String(r.requested_role).replace(/_/g, " ")}
+                </span>
+                <Badge
+                  variant={
+                    r.status === "approved" ? "default" : r.status === "pending" ? "outline" : "secondary"
+                  }
+                  className="capitalize"
+                >
+                  {r.status === "pending" ? "Awaiting approval" : r.status}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  Submitted {new Date(r.created_at).toLocaleDateString()}
+                </span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Stat label="Inspections" value={counts.total} loading={inspections.isLoading} />
         <Stat label="In progress" value={counts.open} loading={inspections.isLoading} />
