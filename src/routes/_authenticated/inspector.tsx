@@ -118,6 +118,10 @@ function InspectorDashboard() {
         <Stat label="Sync queue items" value={d?.queue.length} loading={q.isLoading} />
       </div>
 
+      <InspectorComplaintQueue />
+
+
+
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
