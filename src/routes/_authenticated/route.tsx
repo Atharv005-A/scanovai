@@ -47,13 +47,13 @@ const NAV: NavItem[] = [
     to: "/inspector",
     label: "Inspector dashboard",
     icon: Gauge,
-    roles: ["inspector", "supervisor", "authority_admin", "system_admin"],
+    roles: ["inspector"],
   },
   {
     to: "/government",
     label: "Government dashboard",
     icon: Landmark,
-    roles: ["supervisor", "authority_admin", "system_admin"],
+    roles: ["authority_admin", "system_admin"],
   },
   {
     to: "/inspections",
