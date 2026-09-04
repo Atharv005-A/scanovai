@@ -59,6 +59,18 @@ function Dashboard() {
     },
   });
 
+  const myRequests = useQuery({
+    queryKey: ["my-role-requests"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("role_requests")
+        .select("id, requested_role, status, created_at, decided_at")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const demo = useMutation({
     mutationFn: () => seed(),
     onSuccess: () => {
