@@ -73,7 +73,8 @@ function isoDaysAgo(days: number) {
 
 function GovernmentDashboard() {
   const { roles } = useAuth();
-  const allowed = roles.some((r) => ["supervisor", "authority_admin", "system_admin"].includes(r));
+  const allowed = roles.some((r) => ["authority_admin", "system_admin"].includes(r));
+
 
   const [filters, setFilters] = useState<Filters>({
     from: isoDaysAgo(29),
