@@ -56,6 +56,7 @@ function code() {
 function Complaints() {
   const { user, isGovStaff } = useAuth();
   const queryClient = useQueryClient();
+  const changeStatus = useServerFn(updateComplaintStatus);
   const [productName, setProductName] = useState("");
   const [manufacturer, setManufacturer] = useState("");
   const [barcode, setBarcode] = useState("");
@@ -63,19 +64,32 @@ function Complaints() {
   const [file, setFile] = useState<File | null>(null);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
 
+  // Try to pick up the location straight away so the reporter sees the map.
+  useEffect(() => {
+    if (!("geolocation" in navigator)) return;
+    navigator.geolocation.getCurrentPosition(
+      (p) => setCoords({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      () => {
+        /* declined — the button below lets them try again */
+      },
+      { timeout: 8000 },
+    );
+  }, []);
+
   const list = useQuery({
     queryKey: ["complaints", "all"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("complaints")
         .select(
-          "id, complaint_code, product_name, manufacturer_name, description, status, resolution_note, created_at",
+          "id, complaint_code, product_name, manufacturer_name, description, status, resolution_note, created_at, latitude, longitude, region, inspection_id",
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
   });
+
 
   const submit = useMutation({
     mutationFn: async () => {
