@@ -269,6 +269,11 @@ function GovernmentDashboard() {
         <Stat label="Retail holds" value={c?.heldItems} tone="destructive" loading={q.isLoading} />
       </div>
 
+      <AccessRequestsPanel />
+      <AuthorityComplaintPanel />
+
+
+
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
