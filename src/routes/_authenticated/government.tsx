@@ -118,14 +118,25 @@ function GovernmentDashboard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Not available for your role</CardTitle>
+          <CardTitle className="text-lg">For government administrators only</CardTitle>
           <CardDescription>
-            The government dashboard is for supervisors and authority administrators.
+            This dashboard belongs to authority administrators. Inspectors have their own dashboard.
           </CardDescription>
         </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <Link to="/dashboard">Go to my dashboard</Link>
+          </Button>
+          {roles.includes("inspector") && (
+            <Button asChild>
+              <Link to="/inspector">Inspector dashboard</Link>
+            </Button>
+          )}
+        </CardContent>
       </Card>
     );
   }
+
 
   const d = q.data;
   const c = d?.counts;
