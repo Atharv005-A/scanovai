@@ -166,7 +166,7 @@ export const acceptComplaint = createServerFn({ method: "POST" })
     });
     if (complaint.complainant_id) {
       await notify(complaint.complainant_id as string, {
-        kind: "complaint_update",
+        kind: "complaint_status",
         title: `Complaint accepted — ${complaint.complaint_code}`,
         body: "An inspector has accepted your complaint and will examine the package.",
         link: "/complaints",
@@ -202,7 +202,7 @@ export const assignComplaint = createServerFn({ method: "POST" })
       new_value: { assigned_to: data.inspectorId },
     });
     await notify(data.inspectorId, {
-      kind: "complaint_update",
+      kind: "complaint_status",
       title: `Complaint assigned — ${updated[0]["complaint_code"]}`,
       body: "A complaint has been assigned to you for inspection.",
       link: "/inspector",
@@ -260,7 +260,7 @@ export const updateComplaintStatus = createServerFn({ method: "POST" })
     });
     if (before.complainant_id) {
       await notify(before.complainant_id as string, {
-        kind: "complaint_update",
+        kind: "complaint_status",
         title: `Complaint ${data.status.replace(/_/g, " ")} — ${before.complaint_code}`,
         body: data.note?.trim() || "The status of your complaint has changed.",
         link: "/complaints",
