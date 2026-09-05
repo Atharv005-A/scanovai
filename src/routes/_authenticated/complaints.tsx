@@ -1,11 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Loader2, MessageSquareWarning, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { updateComplaintStatus } from "@/lib/complaints.functions";
+import { LocationMap } from "@/components/location-map";
+import { ComplaintTimeline } from "@/components/complaint-timeline";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,6 +56,7 @@ function code() {
 function Complaints() {
   const { user, isGovStaff } = useAuth();
   const queryClient = useQueryClient();
+  const changeStatus = useServerFn(updateComplaintStatus);
   const [productName, setProductName] = useState("");
   const [manufacturer, setManufacturer] = useState("");
   const [barcode, setBarcode] = useState("");
@@ -59,19 +64,32 @@ function Complaints() {
   const [file, setFile] = useState<File | null>(null);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
 
+  // Try to pick up the location straight away so the reporter sees the map.
+  useEffect(() => {
+    if (!("geolocation" in navigator)) return;
+    navigator.geolocation.getCurrentPosition(
+      (p) => setCoords({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      () => {
+        /* declined — the button below lets them try again */
+      },
+      { timeout: 8000 },
+    );
+  }, []);
+
   const list = useQuery({
     queryKey: ["complaints", "all"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("complaints")
         .select(
-          "id, complaint_code, product_name, manufacturer_name, description, status, resolution_note, created_at",
+          "id, complaint_code, product_name, manufacturer_name, description, status, resolution_note, created_at, latitude, longitude, region, inspection_id",
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
   });
+
 
   const submit = useMutation({
     mutationFn: async () => {

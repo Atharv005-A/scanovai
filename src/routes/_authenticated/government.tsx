@@ -32,6 +32,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OverallBadge } from "@/components/status";
 import { CATEGORY_LABELS, OVERALL_LABELS } from "@/lib/domain";
+import { AccessRequestsPanel } from "@/components/access-requests";
+import { AuthorityComplaintPanel } from "@/components/authority-complaints";
 
 export const Route = createFileRoute("/_authenticated/government")({
   head: () => ({
@@ -73,7 +75,8 @@ function isoDaysAgo(days: number) {
 
 function GovernmentDashboard() {
   const { roles } = useAuth();
-  const allowed = roles.some((r) => ["supervisor", "authority_admin", "system_admin"].includes(r));
+  const allowed = roles.some((r) => ["authority_admin", "system_admin"].includes(r));
+
 
   const [filters, setFilters] = useState<Filters>({
     from: isoDaysAgo(29),
@@ -117,14 +120,25 @@ function GovernmentDashboard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Not available for your role</CardTitle>
+          <CardTitle className="text-lg">For government administrators only</CardTitle>
           <CardDescription>
-            The government dashboard is for supervisors and authority administrators.
+            This dashboard belongs to authority administrators. Inspectors have their own dashboard.
           </CardDescription>
         </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <Link to="/dashboard">Go to my dashboard</Link>
+          </Button>
+          {roles.includes("inspector") && (
+            <Button asChild>
+              <Link to="/inspector">Inspector dashboard</Link>
+            </Button>
+          )}
+        </CardContent>
       </Card>
     );
   }
+
 
   const d = q.data;
   const c = d?.counts;
@@ -256,6 +270,11 @@ function GovernmentDashboard() {
         <Stat label="Public scans" value={c?.publicScans} loading={q.isLoading} />
         <Stat label="Retail holds" value={c?.heldItems} tone="destructive" loading={q.isLoading} />
       </div>
+
+      <AccessRequestsPanel />
+      <AuthorityComplaintPanel />
+
+
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
