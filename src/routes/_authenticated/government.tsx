@@ -32,6 +32,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OverallBadge } from "@/components/status";
 import { CATEGORY_LABELS, OVERALL_LABELS } from "@/lib/domain";
+import { AccessRequestsPanel } from "@/components/access-requests";
+import { AuthorityComplaintPanel } from "@/components/authority-complaints";
 
 export const Route = createFileRoute("/_authenticated/government")({
   head: () => ({
