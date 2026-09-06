@@ -267,6 +267,7 @@ function InspectionDetail() {
         <CardContent className="space-y-5">
           {user && <ImageCapture inspectionId={id} userId={user.id} disabled={finalized || !isOwner} />}
           <BarcodeBlock inspectionId={id} barcode={ins.barcode} disabled={finalized || !isOwner} />
+          <TamperBlock inspectionId={id} />
         </CardContent>
       </Card>
 
