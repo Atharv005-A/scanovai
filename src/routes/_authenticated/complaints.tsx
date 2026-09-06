@@ -137,19 +137,15 @@ function Complaints() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: async (input: { id: string; status: string }) => {
-      const { error } = await supabase
-        .from("complaints")
-        .update({ status: input.status as never })
-        .eq("id", input.id);
-      if (error) throw new Error(error.message);
-    },
+    mutationFn: (input: { id: string; status: string }) =>
+      changeStatus({ data: { complaintId: input.id, status: input.status as never } }),
     onSuccess: () => {
-      toast.success("Complaint updated.");
+      toast.success("Complaint updated — the reporter can see this step.");
       queryClient.invalidateQueries({ queryKey: ["complaints"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   return (
     <div className="space-y-6">
