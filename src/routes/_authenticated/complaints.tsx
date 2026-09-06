@@ -214,8 +214,13 @@ function Complaints() {
               }}
             >
               <MapPin className="mr-2 size-4" />
-              {coords ? "Location attached" : "Attach my location"}
+              {coords ? "Update my location" : "Attach my location"}
             </Button>
+            <LocationMap
+              latitude={coords?.lat ?? null}
+              longitude={coords?.lng ?? null}
+              label="Where you found the package"
+            />
             <Button className="w-full" onClick={() => submit.mutate()} disabled={submit.isPending}>
               {submit.isPending ? (
                 <Loader2 className="mr-2 size-4 animate-spin" />
