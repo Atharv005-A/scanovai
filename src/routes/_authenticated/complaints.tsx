@@ -276,6 +276,12 @@ function Complaints() {
                       {c.complaint_code} · {new Date(c.created_at).toLocaleString()}
                     </p>
                     <p className="text-sm text-muted-foreground">{c.description}</p>
+                    <LocationMap
+                      latitude={c.latitude as number | null}
+                      longitude={c.longitude as number | null}
+                      label={c.region ?? "Reported location"}
+                    />
+                    <ComplaintTimeline complaintId={c.id} />
                     {c.resolution_note && (
                       <p className="text-sm">
                         <span className="font-medium">Outcome: </span>
