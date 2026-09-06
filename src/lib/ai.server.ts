@@ -307,3 +307,78 @@ Reply with STRICT JSON only:
     model: AI_MODEL,
   };
 }
+
+/* ------------------------------------------------------------------ *
+ * Label tamper advisory
+ *
+ * Visual-integrity opinion only. It never decides compliance: the
+ * deterministic rule engine owns that. A suspicion here tells the
+ * inspector to look closer, nothing more.
+ * ------------------------------------------------------------------ */
+
+export interface TamperFinding {
+  side: string | null;
+  observation: string;
+}
+
+export interface TamperAssessment {
+  verdict: "no_signs" | "possible_tampering" | "insufficient_evidence";
+  confidence: number;
+  findings: TamperFinding[];
+  summary: string;
+  model: string;
+}
+
+const TAMPER_PROMPT = `You are assisting a Legal Metrology field inspector with a VISUAL INTEGRITY
+check of a packaged commodity label. You do NOT judge legal compliance.
+
+Look only for physical/printing signs that the label or its declarations may
+have been altered after packing, for example:
+- a sticker or overprint placed over the MRP, net quantity or dates
+- two conflicting printed values visible in the same panel
+- scratched, scraped, smudged or inked-over characters
+- mismatched fonts, sizes, alignment or ink colour within one declaration
+- a torn, re-glued or peeled label edge, or a label that does not fit the panel
+
+Report ONLY what is visible in the photographs. Do not speculate about intent.
+If the photos are too blurry, dark or partial to judge, say so.
+
+Reply with STRICT JSON only, no markdown fence, exactly:
+{"verdict":"no_signs|possible_tampering|insufficient_evidence","confidence":0.0,
+"summary":"one or two plain sentences","findings":[{"side":"front|back|side|top_bottom|declaration|null","observation":"..."}]}`;
+
+export async function assessTampering(
+  imageUrls: { url: string; side: string }[],
+): Promise<TamperAssessment> {
+  if (imageUrls.length === 0)
+    throw new AiError("There are no package photographs to examine yet.");
+
+  const content: Record<string, unknown>[] = [{ type: "text", text: TAMPER_PROMPT }];
+  for (const img of imageUrls.slice(0, 5)) {
+    content.push({ type: "text", text: `Photograph — ${img.side}:` });
+    content.push({ type: "image_url", image_url: { url: img.url } });
+  }
+
+  const text = await callGateway(content, "Checking the label for tampering");
+  const obj = extractJson(text) as Partial<TamperAssessment> | null;
+  if (!obj) throw new AiError("The tamper check returned an unreadable answer. Retry.");
+
+  const verdict =
+    obj.verdict === "possible_tampering" || obj.verdict === "no_signs"
+      ? obj.verdict
+      : "insufficient_evidence";
+  const findings = Array.isArray(obj.findings)
+    ? obj.findings
+        .filter((f) => f && typeof f.observation === "string" && f.observation.trim())
+        .slice(0, 8)
+        .map((f) => ({ side: f.side ?? null, observation: String(f.observation).slice(0, 400) }))
+    : [];
+
+  return {
+    verdict,
+    confidence: Math.max(0, Math.min(1, Number(obj.confidence) || 0)),
+    findings,
+    summary: typeof obj.summary === "string" ? obj.summary.slice(0, 600) : "",
+    model: AI_MODEL,
+  };
+}

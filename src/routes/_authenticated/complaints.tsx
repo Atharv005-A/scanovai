@@ -137,19 +137,15 @@ function Complaints() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: async (input: { id: string; status: string }) => {
-      const { error } = await supabase
-        .from("complaints")
-        .update({ status: input.status as never })
-        .eq("id", input.id);
-      if (error) throw new Error(error.message);
-    },
+    mutationFn: (input: { id: string; status: string }) =>
+      changeStatus({ data: { complaintId: input.id, status: input.status as never } }),
     onSuccess: () => {
-      toast.success("Complaint updated.");
+      toast.success("Complaint updated — the reporter can see this step.");
       queryClient.invalidateQueries({ queryKey: ["complaints"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   return (
     <div className="space-y-6">
@@ -218,8 +214,13 @@ function Complaints() {
               }}
             >
               <MapPin className="mr-2 size-4" />
-              {coords ? "Location attached" : "Attach my location"}
+              {coords ? "Update my location" : "Attach my location"}
             </Button>
+            <LocationMap
+              latitude={coords?.lat ?? null}
+              longitude={coords?.lng ?? null}
+              label="Where you found the package"
+            />
             <Button className="w-full" onClick={() => submit.mutate()} disabled={submit.isPending}>
               {submit.isPending ? (
                 <Loader2 className="mr-2 size-4 animate-spin" />
@@ -275,6 +276,12 @@ function Complaints() {
                       {c.complaint_code} · {new Date(c.created_at).toLocaleString()}
                     </p>
                     <p className="text-sm text-muted-foreground">{c.description}</p>
+                    <LocationMap
+                      latitude={c.latitude as number | null}
+                      longitude={c.longitude as number | null}
+                      label={c.region ?? "Reported location"}
+                    />
+                    <ComplaintTimeline complaintId={c.id} />
                     {c.resolution_note && (
                       <p className="text-sm">
                         <span className="font-medium">Outcome: </span>
