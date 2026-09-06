@@ -24,6 +24,7 @@ import {
   generateInspectionReport,
 } from "@/lib/inspection.functions";
 import { buildReportPdf } from "@/lib/report-pdf";
+import { checkLabelTampering } from "@/lib/tamper.functions";
 import { ImageCapture, BarcodeScanner } from "@/components/image-capture";
 import { OverallBadge, ResultBadge, ConfidenceChip } from "@/components/status";
 import { Button } from "@/components/ui/button";
@@ -794,6 +795,59 @@ function ReportBlock({
         </ul>
       )}
       {disabled && <p className="text-xs text-muted-foreground">A compliance check is required first.</p>}
+    </div>
+  );
+}
+
+/**
+ * Visual integrity check. Advisory only — it never changes a rule result.
+ */
+function TamperBlock({ inspectionId }: { inspectionId: string }) {
+  const run = useServerFn(checkLabelTampering);
+  const m = useMutation({
+    mutationFn: () => run({ data: { inspectionId } }),
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const a = m.data?.assessment as Record<string, any> | undefined;
+  const findings = Array.isArray(a?.["findings"]) ? (a!["findings"] as Record<string, any>[]) : [];
+
+  return (
+    <div className="rounded-md border border-border p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium">Label tamper check</p>
+          <p className="text-xs text-muted-foreground">
+            Looks for stickers over the price, overprinting, scraped characters or a re-glued label. Advisory
+            only — it never decides compliance.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => m.mutate()} disabled={m.isPending}>
+          {m.isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+          {a ? "Check again" : "Check the label"}
+        </Button>
+      </div>
+
+      {a && (
+        <div className="mt-4 space-y-2">
+          <Badge
+            variant={a["verdict"] === "possible_tampering" ? "destructive" : "secondary"}
+            className="capitalize"
+          >
+            {String(a["verdict"]).replace(/_/g, " ")}
+          </Badge>
+          {a["summary"] && <p className="text-sm">{String(a["summary"])}</p>}
+          {findings.length > 0 && (
+            <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+              {findings.map((f, i) => (
+                <li key={i}>
+                  {f["side"] ? <span className="capitalize">{String(f["side"])}: </span> : null}
+                  {String(f["observation"])}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }
