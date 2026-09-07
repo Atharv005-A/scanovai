@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ReportRouteImport } from './routes/report'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RulesRouteImport } from './routes/rules'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as TrackRouteImport } from './routes/track'
@@ -22,7 +23,6 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedGovernmentRouteImport } from './routes/_authenticated/government'
 import { Route as AuthenticatedInspectorRouteImport } from './routes/_authenticated/inspector'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
-import { Route as AuthNewPasswordRouteImport } from './routes/auth.new-password'
 import { Route as AuthenticatedInspectionsIndexRouteImport } from './routes/_authenticated/inspections.index'
 import { Route as AuthenticatedInspectionsIdRouteImport } from './routes/_authenticated/inspections.$id'
 import { Route as AuthenticatedInspectionsNewRouteImport } from './routes/_authenticated/inspections.new'
@@ -44,6 +44,11 @@ const AuthRoute = AuthRouteImport.update({
 const ReportRoute = ReportRouteImport.update({
   id: '/report',
   path: '/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RulesRoute = RulesRouteImport.update({
@@ -91,11 +96,6 @@ const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthNewPasswordRoute = AuthNewPasswordRouteImport.update({
-  id: '/new-password',
-  path: '/new-password',
-  getParentRoute: () => AuthRoute,
-} as any)
 const AuthenticatedInspectionsIndexRoute =
   AuthenticatedInspectionsIndexRouteImport.update({
     id: '/inspections/',
@@ -117,8 +117,9 @@ const AuthenticatedInspectionsNewRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRouteWithChildren
+  '/auth': typeof AuthRoute
   '/report': typeof ReportRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/rules': typeof RulesRoute
   '/scan': typeof ScanRoute
   '/track': typeof TrackRoute
@@ -128,15 +129,15 @@ export interface FileRoutesByFullPath {
   '/government': typeof AuthenticatedGovernmentRoute
   '/inspector': typeof AuthenticatedInspectorRoute
   '/products': typeof AuthenticatedProductsRoute
-  '/auth/new-password': typeof AuthNewPasswordRoute
   '/inspections/$id': typeof AuthenticatedInspectionsIdRoute
   '/inspections/new': typeof AuthenticatedInspectionsNewRoute
   '/inspections/': typeof AuthenticatedInspectionsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRouteWithChildren
+  '/auth': typeof AuthRoute
   '/report': typeof ReportRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/rules': typeof RulesRoute
   '/scan': typeof ScanRoute
   '/track': typeof TrackRoute
@@ -146,7 +147,6 @@ export interface FileRoutesByTo {
   '/government': typeof AuthenticatedGovernmentRoute
   '/inspector': typeof AuthenticatedInspectorRoute
   '/products': typeof AuthenticatedProductsRoute
-  '/auth/new-password': typeof AuthNewPasswordRoute
   '/inspections/$id': typeof AuthenticatedInspectionsIdRoute
   '/inspections/new': typeof AuthenticatedInspectionsNewRoute
   '/inspections': typeof AuthenticatedInspectionsIndexRoute
@@ -155,8 +155,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/auth': typeof AuthRouteWithChildren
+  '/auth': typeof AuthRoute
   '/report': typeof ReportRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/rules': typeof RulesRoute
   '/scan': typeof ScanRoute
   '/track': typeof TrackRoute
@@ -166,7 +167,6 @@ export interface FileRoutesById {
   '/_authenticated/government': typeof AuthenticatedGovernmentRoute
   '/_authenticated/inspector': typeof AuthenticatedInspectorRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
-  '/auth/new-password': typeof AuthNewPasswordRoute
   '/_authenticated/inspections/$id': typeof AuthenticatedInspectionsIdRoute
   '/_authenticated/inspections/new': typeof AuthenticatedInspectionsNewRoute
   '/_authenticated/inspections/': typeof AuthenticatedInspectionsIndexRoute
@@ -177,6 +177,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/report'
+    | '/reset-password'
     | '/rules'
     | '/scan'
     | '/track'
@@ -186,7 +187,6 @@ export interface FileRouteTypes {
     | '/government'
     | '/inspector'
     | '/products'
-    | '/auth/new-password'
     | '/inspections/$id'
     | '/inspections/new'
     | '/inspections/'
@@ -195,6 +195,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/report'
+    | '/reset-password'
     | '/rules'
     | '/scan'
     | '/track'
@@ -204,7 +205,6 @@ export interface FileRouteTypes {
     | '/government'
     | '/inspector'
     | '/products'
-    | '/auth/new-password'
     | '/inspections/$id'
     | '/inspections/new'
     | '/inspections'
@@ -214,6 +214,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/report'
+    | '/reset-password'
     | '/rules'
     | '/scan'
     | '/track'
@@ -223,7 +224,6 @@ export interface FileRouteTypes {
     | '/_authenticated/government'
     | '/_authenticated/inspector'
     | '/_authenticated/products'
-    | '/auth/new-password'
     | '/_authenticated/inspections/$id'
     | '/_authenticated/inspections/new'
     | '/_authenticated/inspections/'
@@ -232,8 +232,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AuthRoute: typeof AuthRouteWithChildren
+  AuthRoute: typeof AuthRoute
   ReportRoute: typeof ReportRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   RulesRoute: typeof RulesRoute
   ScanRoute: typeof ScanRoute
   TrackRoute: typeof TrackRoute
@@ -267,6 +268,13 @@ declare module '@tanstack/react-router' {
       path: '/report'
       fullPath: '/report'
       preLoaderRoute: typeof ReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rules': {
@@ -332,13 +340,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/auth/new-password': {
-      id: '/auth/new-password'
-      path: '/new-password'
-      fullPath: '/auth/new-password'
-      preLoaderRoute: typeof AuthNewPasswordRouteImport
-      parentRoute: typeof AuthRoute
-    }
     '/_authenticated/inspections/': {
       id: '/_authenticated/inspections/'
       path: '/inspections'
@@ -390,21 +391,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface AuthRouteChildren {
-  AuthNewPasswordRoute: typeof AuthNewPasswordRoute
-}
-
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthNewPasswordRoute: AuthNewPasswordRoute,
-}
-
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AuthRoute: AuthRouteWithChildren,
+  AuthRoute: AuthRoute,
   ReportRoute: ReportRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   RulesRoute: RulesRoute,
   ScanRoute: ScanRoute,
   TrackRoute: TrackRoute,
