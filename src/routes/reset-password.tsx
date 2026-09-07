@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export const Route = createFileRoute("/auth/new-password")({
+export const Route = createFileRoute("/reset-password")({
   ssr: false,
   head: () => ({
     meta: [
