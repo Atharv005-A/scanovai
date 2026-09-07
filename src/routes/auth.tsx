@@ -286,7 +286,7 @@ function Forgot() {
     e.preventDefault();
     setBusy(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/auth/new-password`,
+      redirectTo: `${window.location.origin}/reset-password`,
     });
     setBusy(false);
     if (error) { toast.error(friendly(error.message)); return; }
