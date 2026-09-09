@@ -36,7 +36,19 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const SIGNUP_ROLES = ["citizen", "inspector", "supervisor", "manufacturer", "authority_admin"] as const;
+/**
+ * Only these three can be asked for on the public form. Supervisor and
+ * authority administrator accounts are never self-created — they sign in with
+ * accounts an authority already holds (demo logins are listed on the sign-in
+ * tab for the prototype).
+ */
+const SIGNUP_ROLES = ["citizen", "inspector", "manufacturer"] as const;
+
+const SIGNUP_ROLE_NOTES: Record<string, string> = {
+  citizen: "Immediate access: scan packages, report a package and track your reports.",
+  inspector: "A government authority administrator must approve your account first.",
+  manufacturer: "An inspector (or authority administrator) must verify your company first.",
+};
 
 function safeRedirect(value: string | undefined) {
   if (!value) return "/dashboard";
