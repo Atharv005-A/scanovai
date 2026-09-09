@@ -103,8 +103,9 @@ function AuthPage() {
         </CardContent>
       </Card>
       <p className="max-w-md text-center text-xs text-muted-foreground">
-        Accounts are created with the role you select. Inspector, supervisor and authority accounts are
-        attached to a demo authority office so that authority-level isolation can be demonstrated.
+        Anyone can create a citizen account straight away. Inspector accounts are approved by a government
+        authority administrator; company accounts are verified by an inspector. Supervisor and authority
+        administrator accounts are issued by the authority and can only sign in.
       </p>
     </main>
   );
