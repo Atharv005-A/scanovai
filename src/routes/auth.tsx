@@ -128,6 +128,31 @@ function SignIn({ onDone }: { onDone: () => void }) {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [unverified, setUnverified] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
+  const [demoBusy, setDemoBusy] = useState<string | null>(null);
+  const prepare = useServerFn(ensureDemoAccounts);
+
+  async function useDemo(account: (typeof DEMO_ACCOUNTS)[number]) {
+    setDemoBusy(account.email);
+    setEmail(account.email);
+    setPassword(account.password);
+    try {
+      await prepare();
+    } catch {
+      /* the account may already exist — try signing in anyway */
+    }
+    const { error } = await supabase.auth.signInWithPassword({
+      email: account.email,
+      password: account.password,
+    });
+    setDemoBusy(null);
+    if (error) {
+      toast.error(friendly(error.message));
+      return;
+    }
+    toast.success(`Signed in as ${ROLE_LABELS[account.role]}`);
+    onDone();
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
