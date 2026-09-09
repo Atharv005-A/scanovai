@@ -36,7 +36,19 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const SIGNUP_ROLES = ["citizen", "inspector", "supervisor", "manufacturer", "authority_admin"] as const;
+/**
+ * Only these three can be asked for on the public form. Supervisor and
+ * authority administrator accounts are never self-created — they sign in with
+ * accounts an authority already holds (demo logins are listed on the sign-in
+ * tab for the prototype).
+ */
+const SIGNUP_ROLES = ["citizen", "inspector", "manufacturer"] as const;
+
+const SIGNUP_ROLE_NOTES: Record<string, string> = {
+  citizen: "Immediate access: scan packages, report a package and track your reports.",
+  inspector: "A government authority administrator must approve your account first.",
+  manufacturer: "An inspector (or authority administrator) must verify your company first.",
+};
 
 function safeRedirect(value: string | undefined) {
   if (!value) return "/dashboard";
@@ -91,8 +103,9 @@ function AuthPage() {
         </CardContent>
       </Card>
       <p className="max-w-md text-center text-xs text-muted-foreground">
-        Accounts are created with the role you select. Inspector, supervisor and authority accounts are
-        attached to a demo authority office so that authority-level isolation can be demonstrated.
+        Anyone can create a citizen account straight away. Inspector accounts are approved by a government
+        authority administrator; company accounts are verified by an inspector. Supervisor and authority
+        administrator accounts are issued by the authority and can only sign in.
       </p>
     </main>
   );
@@ -115,6 +128,31 @@ function SignIn({ onDone }: { onDone: () => void }) {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [unverified, setUnverified] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
+  const [demoBusy, setDemoBusy] = useState<string | null>(null);
+  const prepare = useServerFn(ensureDemoAccounts);
+
+  async function useDemo(account: (typeof DEMO_ACCOUNTS)[number]) {
+    setDemoBusy(account.email);
+    setEmail(account.email);
+    setPassword(account.password);
+    try {
+      await prepare();
+    } catch {
+      /* the account may already exist — try signing in anyway */
+    }
+    const { error } = await supabase.auth.signInWithPassword({
+      email: account.email,
+      password: account.password,
+    });
+    setDemoBusy(null);
+    if (error) {
+      toast.error(friendly(error.message));
+      return;
+    }
+    toast.success(`Signed in as ${ROLE_LABELS[account.role]}`);
+    onDone();
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -181,6 +219,50 @@ function SignIn({ onDone }: { onDone: () => void }) {
         {busy && <Loader2 className="mr-2 size-4 animate-spin" />}
         Sign in
       </Button>
+
+      <div className="rounded-md border border-dashed border-border p-3">
+        <button
+          type="button"
+          onClick={() => setShowDemo((v) => !v)}
+          className="flex w-full items-center justify-between text-sm font-medium"
+        >
+          <span className="flex items-center gap-2">
+            <Users className="size-4" /> Demo logins
+          </span>
+          <span className="text-xs text-muted-foreground">{showDemo ? "Hide" : "Show"}</span>
+        </button>
+        {showDemo && (
+          <div className="mt-3 space-y-2">
+            <p className="text-xs text-muted-foreground">
+              One prepared account per role, including the authority administrator. Every record they hold is
+              marked as demo data.
+            </p>
+            {DEMO_ACCOUNTS.map((a) => (
+              <div
+                key={a.email}
+                className="flex flex-wrap items-center gap-2 rounded-md bg-muted/50 px-2.5 py-2"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{ROLE_LABELS[a.role]}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {a.email} · {a.password}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => useDemo(a)}
+                  disabled={demoBusy !== null}
+                >
+                  {demoBusy === a.email && <Loader2 className="mr-1.5 size-4 animate-spin" />}
+                  Sign in
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </form>
   );
 }

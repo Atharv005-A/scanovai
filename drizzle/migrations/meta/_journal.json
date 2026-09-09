@@ -92,6 +92,13 @@
       "when": 1788323467718,
       "tag": "0012_complaint_inspection_link",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1788943979018,
+      "tag": "0013_inspector_can_grant_manufacturer",
+      "breakpoints": true
     }
   ]
 }

@@ -496,3 +496,86 @@ export function looseTextEqual(a: string | null | undefined, b: string | null | 
   if (na === nb) return true;
   return na.length > 4 && nb.length > 4 && (na.includes(nb) || nb.includes(na));
 }
+
+// ---------------------------------------------------------------------------
+// Dates — always rendered from the stored timestamp, in the reader's own time
+// ---------------------------------------------------------------------------
+
+function toDate(value: string | number | Date | null | undefined): Date | null {
+  if (value == null) return null;
+  const d = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/** "9 Sep 2026, 14:16" */
+export function formatDateTime(value: string | number | Date | null | undefined): string {
+  const d = toDate(value);
+  if (!d) return "—";
+  return d.toLocaleString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/** "9 Sep 2026" */
+export function formatDate(value: string | number | Date | null | undefined): string {
+  const d = toDate(value);
+  if (!d) return "—";
+  return d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
+/** "just now", "2 hours ago", "3 days ago" */
+export function relativeTime(value: string | number | Date | null | undefined): string {
+  const d = toDate(value);
+  if (!d) return "—";
+  const seconds = Math.round((Date.now() - d.getTime()) / 1000);
+  const future = seconds < 0;
+  const s = Math.abs(seconds);
+  const units: [number, string][] = [
+    [60, "second"],
+    [3600, "minute"],
+    [86_400, "hour"],
+    [604_800, "day"],
+    [2_592_000, "week"],
+    [31_536_000, "month"],
+  ];
+  if (s < 45) return future ? "in a moment" : "just now";
+  let label = "year";
+  let amount = Math.round(s / 31_536_000);
+  if (s < 3600) {
+    label = "minute";
+    amount = Math.round(s / 60);
+  } else if (s < 86_400) {
+    label = "hour";
+    amount = Math.round(s / 3600);
+  } else if (s < 604_800) {
+    label = "day";
+    amount = Math.round(s / 86_400);
+  } else if (s < 2_592_000) {
+    label = "week";
+    amount = Math.round(s / 604_800);
+  } else if (s < 31_536_000) {
+    label = "month";
+    amount = Math.round(s / 2_592_000);
+  }
+  void units;
+  const plural = `${amount} ${label}${amount === 1 ? "" : "s"}`;
+  return future ? `in ${plural}` : `${plural} ago`;
+}
+
+/** "9 Sep 2026, 14:16 · 2 hours ago" */
+export function formatWhen(value: string | number | Date | null | undefined): string {
+  const d = toDate(value);
+  if (!d) return "—";
+  return `${formatDateTime(d)} · ${relativeTime(d)}`;
+}
+
+/** Whole days since the timestamp — used for "age" chips on queues. */
+export function ageInDays(value: string | number | Date | null | undefined): number | null {
+  const d = toDate(value);
+  if (!d) return null;
+  return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86_400_000));
+}
