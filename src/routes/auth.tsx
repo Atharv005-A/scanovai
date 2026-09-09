@@ -219,6 +219,50 @@ function SignIn({ onDone }: { onDone: () => void }) {
         {busy && <Loader2 className="mr-2 size-4 animate-spin" />}
         Sign in
       </Button>
+
+      <div className="rounded-md border border-dashed border-border p-3">
+        <button
+          type="button"
+          onClick={() => setShowDemo((v) => !v)}
+          className="flex w-full items-center justify-between text-sm font-medium"
+        >
+          <span className="flex items-center gap-2">
+            <Users className="size-4" /> Demo logins
+          </span>
+          <span className="text-xs text-muted-foreground">{showDemo ? "Hide" : "Show"}</span>
+        </button>
+        {showDemo && (
+          <div className="mt-3 space-y-2">
+            <p className="text-xs text-muted-foreground">
+              One prepared account per role, including the authority administrator. Every record they hold is
+              marked as demo data.
+            </p>
+            {DEMO_ACCOUNTS.map((a) => (
+              <div
+                key={a.email}
+                className="flex flex-wrap items-center gap-2 rounded-md bg-muted/50 px-2.5 py-2"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{ROLE_LABELS[a.role]}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {a.email} · {a.password}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => useDemo(a)}
+                  disabled={demoBusy !== null}
+                >
+                  {demoBusy === a.email && <Loader2 className="mr-1.5 size-4 animate-spin" />}
+                  Sign in
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </form>
   );
 }
