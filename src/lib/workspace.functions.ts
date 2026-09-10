@@ -37,11 +37,29 @@ export const bootstrapWorkspace = createServerFn({ method: "POST" })
     const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", userId);
     let roles = ((roleRows ?? []) as { role: string }[]).map((r) => r.role);
     if (roles.length === 0) {
-      const requested = (meta["requested_role"] as string | undefined) ?? "citizen";
-      const allowed = ["citizen", "inspector", "supervisor", "manufacturer", "authority_admin"];
-      const role = allowed.includes(requested) ? requested : "citizen";
-      await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: role as never });
-      roles = [role];
+      // Every new account starts as a citizen. Privileged roles are only ever
+      // granted through the approval queue (grant_role), never from the client.
+      await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: "citizen" as never });
+      roles = ["citizen"];
+    }
+
+    // A role chosen at sign-up is recorded as a request for someone to approve.
+    const requested = (meta["requested_role"] as string | undefined) ?? null;
+    if (
+      requested &&
+      ["inspector", "manufacturer", "supervisor", "retailer"].includes(requested) &&
+      !roles.includes(requested)
+    ) {
+      await supabaseAdmin
+        .from("role_requests")
+        .upsert(
+          {
+            user_id: userId,
+            requested_role: requested as never,
+            justification: `Chosen while creating the account (${fullName}).`,
+          },
+          { onConflict: "user_id,requested_role", ignoreDuplicates: true },
+        );
     }
 
     const govRoles = roles.filter((r) => ["inspector", "supervisor", "authority_admin"].includes(r));
