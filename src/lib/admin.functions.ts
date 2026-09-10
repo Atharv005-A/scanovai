@@ -241,19 +241,26 @@ export const requestRole = createServerFn({ method: "POST" })
     return { ok: true as const, alreadyPending: false as const };
   });
 
+/**
+ * Approval queue. Authority administrators see every request; an inspector
+ * sees only company/retail applications, which they are allowed to verify.
+ */
 export const listRoleRequests = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context as unknown as { supabase: Sb; userId: string };
     const roles = await rolesOf(supabase, userId);
-    if (!roles.some((r) => ["authority_admin", "system_admin"].includes(r)))
-      return { requests: [] as Record<string, any>[] };
+    const isAdmin = roles.some((r) => ["authority_admin", "system_admin"].includes(r));
+    const isInspector = roles.includes("inspector");
+    if (!isAdmin && !isInspector) return { requests: [] as Record<string, any>[] };
 
-    const { data: requests } = await supabase
+    let query = supabase
       .from("role_requests")
       .select("id, user_id, requested_role, justification, status, created_at, decided_at")
       .order("created_at", { ascending: false })
       .limit(200);
+    if (!isAdmin) query = query.in("requested_role", ["manufacturer", "retailer"]);
+    const { data: requests } = await query;
 
     const ids = [...new Set(((requests ?? []) as { user_id: string }[]).map((r) => r.user_id))];
     const { data: profiles } = ids.length
