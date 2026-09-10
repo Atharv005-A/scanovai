@@ -352,6 +352,7 @@ function SignUp() {
             ))}
           </SelectContent>
         </Select>
+        <p className="text-xs text-muted-foreground">{SIGNUP_ROLE_NOTES[role]}</p>
       </div>
       <Button type="submit" className="w-full" disabled={busy}>
         {busy && <Loader2 className="mr-2 size-4 animate-spin" />}
