@@ -241,19 +241,26 @@ export const requestRole = createServerFn({ method: "POST" })
     return { ok: true as const, alreadyPending: false as const };
   });
 
+/**
+ * Approval queue. Authority administrators see every request; an inspector
+ * sees only company/retail applications, which they are allowed to verify.
+ */
 export const listRoleRequests = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context as unknown as { supabase: Sb; userId: string };
     const roles = await rolesOf(supabase, userId);
-    if (!roles.some((r) => ["authority_admin", "system_admin"].includes(r)))
-      return { requests: [] as Record<string, any>[] };
+    const isAdmin = roles.some((r) => ["authority_admin", "system_admin"].includes(r));
+    const isInspector = roles.includes("inspector");
+    if (!isAdmin && !isInspector) return { requests: [] as Record<string, any>[] };
 
-    const { data: requests } = await supabase
+    let query = supabase
       .from("role_requests")
       .select("id, user_id, requested_role, justification, status, created_at, decided_at")
       .order("created_at", { ascending: false })
       .limit(200);
+    if (!isAdmin) query = query.in("requested_role", ["manufacturer", "retailer"]);
+    const { data: requests } = await query;
 
     const ids = [...new Set(((requests ?? []) as { user_id: string }[]).map((r) => r.user_id))];
     const { data: profiles } = ids.length
@@ -295,6 +302,13 @@ export const decideRoleRequest = createServerFn({ method: "POST" })
     if (error || !request) throw new Error("That request could not be found.");
     if (request.status !== "pending") throw new Error("That request has already been decided.");
 
+    const deciderRoles = await rolesOf(supabase, userId);
+    const isAdmin = deciderRoles.some((r) => ["authority_admin", "system_admin"].includes(r));
+    const isInspector = deciderRoles.includes("inspector");
+    const requested = String(request.requested_role);
+    if (!isAdmin && !(isInspector && ["manufacturer", "retailer"].includes(requested)))
+      throw new Error("You are not allowed to decide this request.");
+
     if (data.approve) {
       const { error: rpcError } = await supabase.rpc("grant_role", {
         _user_id: request.user_id,
@@ -302,6 +316,30 @@ export const decideRoleRequest = createServerFn({ method: "POST" })
         _reason: data.reason ?? "Approved access request",
       });
       if (rpcError) throw new Error(rpcError.message ?? "The role could not be granted.");
+
+      if (requested === "manufacturer") {
+        // Give the newly approved company a record to work from.
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: existing } = await supabaseAdmin
+          .from("manufacturers")
+          .select("id")
+          .eq("owner_id", request.user_id as string)
+          .maybeSingle();
+        if (!existing) {
+          const { data: profile } = await supabaseAdmin
+            .from("profiles")
+            .select("full_name, email")
+            .eq("id", request.user_id as string)
+            .maybeSingle();
+          await supabaseAdmin.from("manufacturers").insert({
+            owner_id: request.user_id as string,
+            name: (profile?.full_name as string | undefined) || "New company",
+            contact_email: (profile?.email as string | undefined) ?? null,
+            country: "India",
+            status: "active",
+          });
+        }
+      }
     } else {
       const { error: updateError } = await supabase
         .from("role_requests")

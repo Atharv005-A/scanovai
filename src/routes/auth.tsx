@@ -1,10 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { ScanLine, Loader2, MailCheck } from "lucide-react";
+import { ScanLine, Loader2, MailCheck, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
+import { DEMO_ACCOUNTS, ensureDemoAccounts } from "@/lib/demo.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -350,6 +352,7 @@ function SignUp() {
             ))}
           </SelectContent>
         </Select>
+        <p className="text-xs text-muted-foreground">{SIGNUP_ROLE_NOTES[role]}</p>
       </div>
       <Button type="submit" className="w-full" disabled={busy}>
         {busy && <Loader2 className="mr-2 size-4 animate-spin" />}
