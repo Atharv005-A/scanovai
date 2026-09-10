@@ -302,6 +302,13 @@ export const decideRoleRequest = createServerFn({ method: "POST" })
     if (error || !request) throw new Error("That request could not be found.");
     if (request.status !== "pending") throw new Error("That request has already been decided.");
 
+    const deciderRoles = await rolesOf(supabase, userId);
+    const isAdmin = deciderRoles.some((r) => ["authority_admin", "system_admin"].includes(r));
+    const isInspector = deciderRoles.includes("inspector");
+    const requested = String(request.requested_role);
+    if (!isAdmin && !(isInspector && ["manufacturer", "retailer"].includes(requested)))
+      throw new Error("You are not allowed to decide this request.");
+
     if (data.approve) {
       const { error: rpcError } = await supabase.rpc("grant_role", {
         _user_id: request.user_id,
@@ -309,6 +316,30 @@ export const decideRoleRequest = createServerFn({ method: "POST" })
         _reason: data.reason ?? "Approved access request",
       });
       if (rpcError) throw new Error(rpcError.message ?? "The role could not be granted.");
+
+      if (requested === "manufacturer") {
+        // Give the newly approved company a record to work from.
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: existing } = await supabaseAdmin
+          .from("manufacturers")
+          .select("id")
+          .eq("owner_id", request.user_id as string)
+          .maybeSingle();
+        if (!existing) {
+          const { data: profile } = await supabaseAdmin
+            .from("profiles")
+            .select("full_name, email")
+            .eq("id", request.user_id as string)
+            .maybeSingle();
+          await supabaseAdmin.from("manufacturers").insert({
+            owner_id: request.user_id as string,
+            name: (profile?.full_name as string | undefined) || "New company",
+            contact_email: (profile?.email as string | undefined) ?? null,
+            country: "India",
+            status: "active",
+          });
+        }
+      }
     } else {
       const { error: updateError } = await supabase
         .from("role_requests")
