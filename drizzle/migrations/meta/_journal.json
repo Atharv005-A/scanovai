@@ -99,6 +99,13 @@
       "when": 1788943979018,
       "tag": "0013_inspector_can_grant_manufacturer",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1789093435337,
+      "tag": "0014_complaint_updates_hide_internal_notes",
+      "breakpoints": true
     }
   ]
 }
