@@ -18,6 +18,7 @@ import { Route as RulesRouteImport } from './routes/rules'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as TrackRouteImport } from './routes/track'
 import { Route as AuthenticatedAuthorityRouteImport } from './routes/_authenticated/authority'
+import { Route as AuthenticatedCitizenRouteImport } from './routes/_authenticated/citizen'
 import { Route as AuthenticatedComplaintsRouteImport } from './routes/_authenticated/complaints'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedGovernmentRouteImport } from './routes/_authenticated/government'
@@ -69,6 +70,11 @@ const TrackRoute = TrackRouteImport.update({
 const AuthenticatedAuthorityRoute = AuthenticatedAuthorityRouteImport.update({
   id: '/authority',
   path: '/authority',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCitizenRoute = AuthenticatedCitizenRouteImport.update({
+  id: '/citizen',
+  path: '/citizen',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedComplaintsRoute = AuthenticatedComplaintsRouteImport.update({
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/scan': typeof ScanRoute
   '/track': typeof TrackRoute
   '/authority': typeof AuthenticatedAuthorityRoute
+  '/citizen': typeof AuthenticatedCitizenRoute
   '/complaints': typeof AuthenticatedComplaintsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/government': typeof AuthenticatedGovernmentRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/scan': typeof ScanRoute
   '/track': typeof TrackRoute
   '/authority': typeof AuthenticatedAuthorityRoute
+  '/citizen': typeof AuthenticatedCitizenRoute
   '/complaints': typeof AuthenticatedComplaintsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/government': typeof AuthenticatedGovernmentRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/scan': typeof ScanRoute
   '/track': typeof TrackRoute
   '/_authenticated/authority': typeof AuthenticatedAuthorityRoute
+  '/_authenticated/citizen': typeof AuthenticatedCitizenRoute
   '/_authenticated/complaints': typeof AuthenticatedComplaintsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/government': typeof AuthenticatedGovernmentRoute
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/scan'
     | '/track'
     | '/authority'
+    | '/citizen'
     | '/complaints'
     | '/dashboard'
     | '/government'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/scan'
     | '/track'
     | '/authority'
+    | '/citizen'
     | '/complaints'
     | '/dashboard'
     | '/government'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/scan'
     | '/track'
     | '/_authenticated/authority'
+    | '/_authenticated/citizen'
     | '/_authenticated/complaints'
     | '/_authenticated/dashboard'
     | '/_authenticated/government'
@@ -305,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAuthorityRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/citizen': {
+      id: '/_authenticated/citizen'
+      path: '/citizen'
+      fullPath: '/citizen'
+      preLoaderRoute: typeof AuthenticatedCitizenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/complaints': {
       id: '/_authenticated/complaints'
       path: '/complaints'
@@ -366,6 +385,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuthorityRoute: typeof AuthenticatedAuthorityRoute
+  AuthenticatedCitizenRoute: typeof AuthenticatedCitizenRoute
   AuthenticatedComplaintsRoute: typeof AuthenticatedComplaintsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGovernmentRoute: typeof AuthenticatedGovernmentRoute
@@ -378,6 +398,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAuthorityRoute: AuthenticatedAuthorityRoute,
+  AuthenticatedCitizenRoute: AuthenticatedCitizenRoute,
   AuthenticatedComplaintsRoute: AuthenticatedComplaintsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedGovernmentRoute: AuthenticatedGovernmentRoute,
