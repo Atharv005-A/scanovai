@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { OverallBadge } from "@/components/status";
 import { CATEGORY_LABELS } from "@/lib/domain";
 import { InspectorComplaintQueue } from "@/components/complaint-queue";
+import { AccessRequestsPanel } from "@/components/access-requests";
 
 export const Route = createFileRoute("/_authenticated/inspector")({
   head: () => ({
@@ -119,6 +120,8 @@ function InspectorDashboard() {
       </div>
 
       <InspectorComplaintQueue />
+
+      <AccessRequestsPanel />
 
 
 
