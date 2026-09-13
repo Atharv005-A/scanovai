@@ -42,12 +42,24 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/dashboard", label: "My workspace", icon: LayoutDashboard },
+  {
+    to: "/citizen",
+    label: "My reports",
+    icon: ScanLine,
+    roles: ["citizen"],
+  },
   {
     to: "/inspector",
     label: "Inspector dashboard",
     icon: Gauge,
     roles: ["inspector"],
+  },
+  {
+    to: "/supervisor",
+    label: "Supervisor dashboard",
+    icon: ShieldCheck,
+    roles: ["supervisor"],
   },
   {
     to: "/government",
