@@ -51,6 +51,7 @@ const NAV: NavItem[] = [
     label: "My reports",
     icon: ScanLine,
     roles: ["citizen"],
+    notFor: ["inspector", "supervisor", "authority_admin", "system_admin", "manufacturer", "retailer"],
   },
   {
     to: "/inspector",
@@ -100,7 +101,11 @@ function Shell() {
     });
   }, []);
 
-  const visible = NAV.filter((i) => !i.roles || i.roles.some((r) => roles.includes(r as never)));
+  const visible = NAV.filter(
+    (i) =>
+      (!i.roles || i.roles.some((r) => roles.includes(r as never))) &&
+      (!i.notFor || !i.notFor.some((r) => roles.includes(r as never))),
+  );
 
   async function signOut() {
     await queryClient.cancelQueries();
