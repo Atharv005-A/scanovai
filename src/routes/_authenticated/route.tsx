@@ -40,6 +40,8 @@ interface NavItem {
   label: string;
   icon: typeof LayoutDashboard;
   roles?: string[];
+  /** Hidden when the account also holds one of these roles. */
+  notFor?: string[];
 }
 
 const NAV: NavItem[] = [
