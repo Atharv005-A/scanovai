@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OverallBadge } from "@/components/status";
-import { AuthorityComplaints } from "@/components/authority-complaints";
+import { AuthorityComplaintPanel } from "@/components/authority-complaints";
 import { formatWhen } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/supervisor")({
@@ -243,7 +243,7 @@ function SupervisorDashboard() {
         </CardContent>
       </Card>
 
-      <AuthorityComplaints />
+      <AuthorityComplaintPanel />
     </div>
   );
 }
