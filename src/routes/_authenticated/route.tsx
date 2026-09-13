@@ -12,6 +12,7 @@ import {
   Landmark,
   LogOut,
   Menu,
+  ShieldCheck,
 } from "lucide-react";
 
 
