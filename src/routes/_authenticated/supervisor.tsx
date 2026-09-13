@@ -255,9 +255,9 @@ function Stat({
   tone,
 }: {
   label: string;
-  value?: number;
+  value?: number | undefined;
   loading: boolean;
-  tone?: "success" | "warning" | "destructive";
+  tone?: "success" | "warning" | "destructive" | undefined;
 }) {
   return (
     <div className="rounded-xl border border-border bg-card p-4">
