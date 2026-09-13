@@ -24,6 +24,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedGovernmentRouteImport } from './routes/_authenticated/government'
 import { Route as AuthenticatedInspectorRouteImport } from './routes/_authenticated/inspector'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
+import { Route as AuthenticatedSupervisorRouteImport } from './routes/_authenticated/supervisor'
 import { Route as AuthenticatedInspectionsIndexRouteImport } from './routes/_authenticated/inspections.index'
 import { Route as AuthenticatedInspectionsIdRouteImport } from './routes/_authenticated/inspections.$id'
 import { Route as AuthenticatedInspectionsNewRouteImport } from './routes/_authenticated/inspections.new'
@@ -102,6 +103,11 @@ const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSupervisorRoute = AuthenticatedSupervisorRouteImport.update({
+  id: '/supervisor',
+  path: '/supervisor',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedInspectionsIndexRoute =
   AuthenticatedInspectionsIndexRouteImport.update({
     id: '/inspections/',
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/government': typeof AuthenticatedGovernmentRoute
   '/inspector': typeof AuthenticatedInspectorRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/supervisor': typeof AuthenticatedSupervisorRoute
   '/inspections/$id': typeof AuthenticatedInspectionsIdRoute
   '/inspections/new': typeof AuthenticatedInspectionsNewRoute
   '/inspections/': typeof AuthenticatedInspectionsIndexRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/government': typeof AuthenticatedGovernmentRoute
   '/inspector': typeof AuthenticatedInspectorRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/supervisor': typeof AuthenticatedSupervisorRoute
   '/inspections/$id': typeof AuthenticatedInspectionsIdRoute
   '/inspections/new': typeof AuthenticatedInspectionsNewRoute
   '/inspections': typeof AuthenticatedInspectionsIndexRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/_authenticated/government': typeof AuthenticatedGovernmentRoute
   '/_authenticated/inspector': typeof AuthenticatedInspectorRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
+  '/_authenticated/supervisor': typeof AuthenticatedSupervisorRoute
   '/_authenticated/inspections/$id': typeof AuthenticatedInspectionsIdRoute
   '/_authenticated/inspections/new': typeof AuthenticatedInspectionsNewRoute
   '/_authenticated/inspections/': typeof AuthenticatedInspectionsIndexRoute
@@ -197,6 +206,7 @@ export interface FileRouteTypes {
     | '/government'
     | '/inspector'
     | '/products'
+    | '/supervisor'
     | '/inspections/$id'
     | '/inspections/new'
     | '/inspections/'
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/government'
     | '/inspector'
     | '/products'
+    | '/supervisor'
     | '/inspections/$id'
     | '/inspections/new'
     | '/inspections'
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '/_authenticated/government'
     | '/_authenticated/inspector'
     | '/_authenticated/products'
+    | '/_authenticated/supervisor'
     | '/_authenticated/inspections/$id'
     | '/_authenticated/inspections/new'
     | '/_authenticated/inspections/'
@@ -359,6 +371,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/supervisor': {
+      id: '/_authenticated/supervisor'
+      path: '/supervisor'
+      fullPath: '/supervisor'
+      preLoaderRoute: typeof AuthenticatedSupervisorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/inspections/': {
       id: '/_authenticated/inspections/'
       path: '/inspections'
@@ -391,6 +410,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGovernmentRoute: typeof AuthenticatedGovernmentRoute
   AuthenticatedInspectorRoute: typeof AuthenticatedInspectorRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
+  AuthenticatedSupervisorRoute: typeof AuthenticatedSupervisorRoute
   AuthenticatedInspectionsIdRoute: typeof AuthenticatedInspectionsIdRoute
   AuthenticatedInspectionsNewRoute: typeof AuthenticatedInspectionsNewRoute
   AuthenticatedInspectionsIndexRoute: typeof AuthenticatedInspectionsIndexRoute
@@ -404,6 +424,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGovernmentRoute: AuthenticatedGovernmentRoute,
   AuthenticatedInspectorRoute: AuthenticatedInspectorRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
+  AuthenticatedSupervisorRoute: AuthenticatedSupervisorRoute,
   AuthenticatedInspectionsIdRoute: AuthenticatedInspectionsIdRoute,
   AuthenticatedInspectionsNewRoute: AuthenticatedInspectionsNewRoute,
   AuthenticatedInspectionsIndexRoute: AuthenticatedInspectionsIndexRoute,

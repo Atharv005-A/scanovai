@@ -12,6 +12,7 @@ import {
   Landmark,
   LogOut,
   Menu,
+  ShieldCheck,
 } from "lucide-react";
 
 
@@ -39,15 +40,30 @@ interface NavItem {
   label: string;
   icon: typeof LayoutDashboard;
   roles?: string[];
+  /** Hidden when the account also holds one of these roles. */
+  notFor?: string[];
 }
 
 const NAV: NavItem[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/dashboard", label: "My workspace", icon: LayoutDashboard },
+  {
+    to: "/citizen",
+    label: "My reports",
+    icon: ScanLine,
+    roles: ["citizen"],
+    notFor: ["inspector", "supervisor", "authority_admin", "system_admin", "manufacturer", "retailer"],
+  },
   {
     to: "/inspector",
     label: "Inspector dashboard",
     icon: Gauge,
     roles: ["inspector"],
+  },
+  {
+    to: "/supervisor",
+    label: "Supervisor dashboard",
+    icon: ShieldCheck,
+    roles: ["supervisor"],
   },
   {
     to: "/government",
@@ -85,7 +101,11 @@ function Shell() {
     });
   }, []);
 
-  const visible = NAV.filter((i) => !i.roles || i.roles.some((r) => roles.includes(r as never)));
+  const visible = NAV.filter(
+    (i) =>
+      (!i.roles || i.roles.some((r) => roles.includes(r as never))) &&
+      (!i.notFor || !i.notFor.some((r) => roles.includes(r as never))),
+  );
 
   async function signOut() {
     await queryClient.cancelQueries();

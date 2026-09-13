@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OverallBadge } from "@/components/status";
-import { AuthorityComplaints } from "@/components/authority-complaints";
+import { AuthorityComplaintPanel } from "@/components/authority-complaints";
 import { formatWhen } from "@/lib/domain";
 
 export const Route = createFileRoute("/_authenticated/supervisor")({
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/_authenticated/supervisor")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: SupervisorDashboard;
+  component: SupervisorDashboard,
 });
 
 function SupervisorDashboard() {
@@ -243,7 +243,7 @@ function SupervisorDashboard() {
         </CardContent>
       </Card>
 
-      <AuthorityComplaints />
+      <AuthorityComplaintPanel />
     </div>
   );
 }
@@ -255,9 +255,9 @@ function Stat({
   tone,
 }: {
   label: string;
-  value?: number;
+  value?: number | undefined;
   loading: boolean;
-  tone?: "success" | "warning" | "destructive";
+  tone?: "success" | "warning" | "destructive" | undefined;
 }) {
   return (
     <div className="rounded-xl border border-border bg-card p-4">
