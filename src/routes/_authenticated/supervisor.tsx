@@ -42,7 +42,7 @@ export const Route = createFileRoute("/_authenticated/supervisor")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: SupervisorDashboard;
+  component: SupervisorDashboard,
 });
 
 function SupervisorDashboard() {
