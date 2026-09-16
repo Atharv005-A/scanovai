@@ -2,17 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ClipboardList, Plus, RefreshCw } from "lucide-react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+
+import { ChartFrame, TrendArea, CategoryBars } from "@/components/charts";
+
 
 import { inspectorDashboard } from "@/lib/analytics.functions";
 import { useAuth } from "@/hooks/use-auth";
