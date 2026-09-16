@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Search } from "lucide-react";
+import { Download, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { trackPublicComplaint } from "@/lib/public.functions";
+import { buildComplaintPdf } from "@/lib/public-pdf";
 
 export const Route = createFileRoute("/track")({
   ssr: false,
@@ -121,6 +122,28 @@ function TrackPage() {
                 </ol>
               </div>
             )}
+
+            <Button
+              variant="outline"
+              onClick={() => {
+                const doc = buildComplaintPdf({
+                  code: String(complaint["complaint_code"] ?? ""),
+                  trackingToken: token.trim(),
+                  productName: String(complaint["product_name"] ?? ""),
+                  description: String(complaint["description"] ?? "See the progress notes below."),
+                  filedAt: (complaint["created_at"] as string | null) ?? null,
+                  updatedAt: (complaint["updated_at"] as string | null) ?? null,
+                  status: (complaint["status"] as string | null) ?? null,
+                  priority: (complaint["priority"] as string | null) ?? null,
+                  resolutionNote: (complaint["resolution_note"] as string | null) ?? null,
+                  updates,
+                });
+                doc.save(`scanova-complaint-${String(complaint["complaint_code"] ?? "record")}.pdf`);
+              }}
+            >
+              <Download className="size-4" />
+              <span className="ml-1.5">Download PDF</span>
+            </Button>
           </CardContent>
         </Card>
       )}

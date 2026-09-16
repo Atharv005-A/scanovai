@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Camera, Loader2, ScanBarcode, Search, ShieldAlert, Trash2, Upload } from "lucide-react";
+import { Camera, Download, Loader2, ScanBarcode, Search, ShieldAlert, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { PublicShell } from "@/components/public-shell";
@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { publicBarcodeLookup, publicPackageCheck } from "@/lib/public.functions";
 import { fileToJpegBase64, base64Preview } from "@/lib/image-file";
+import { buildScanPdf } from "@/lib/public-pdf";
 import { CATEGORY_GROUPS, CATEGORY_LABELS, FIELD_LABELS, REGISTRY_MATCH_LABELS, type CheckResult } from "@/lib/domain";
 
 export const Route = createFileRoute("/scan")({
@@ -369,7 +370,25 @@ function GuestScan() {
               </Card>
 
               <div className="flex flex-wrap gap-3">
-                <Button asChild>
+                <Button
+                  onClick={() => {
+                    try {
+                      const doc = buildScanPdf(result as never, {
+                        barcode: barcode.trim() || null,
+                        category: category === "auto" ? null : category,
+                        detectedCategory: result.categoryGuess ?? null,
+                        photoCount: shots.length,
+                      });
+                      doc.save(`scanova-check-${result.scanCode ?? "package"}.pdf`);
+                    } catch (e) {
+                      toast.error((e as Error).message);
+                    }
+                  }}
+                >
+                  <Download className="size-4" />
+                  <span className="ml-1.5">Download PDF report</span>
+                </Button>
+                <Button asChild variant="outline">
                   <Link to="/report">Report this package to the authority</Link>
                 </Button>
                 <Button asChild variant="outline">

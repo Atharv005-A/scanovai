@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Copy, Loader2, MapPin, Upload } from "lucide-react";
+import { CheckCircle2, Copy, Download, Loader2, MapPin, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { PublicShell } from "@/components/public-shell";
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { fileToJpegBase64, base64Preview } from "@/lib/image-file";
 import { submitPublicComplaint } from "@/lib/public.functions";
+import { buildComplaintPdf } from "@/lib/public-pdf";
 
 export const Route = createFileRoute("/report")({
   ssr: false,
@@ -113,13 +114,34 @@ function ReportPage() {
                 </Button>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button asChild>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                onClick={() => {
+                  const doc = buildComplaintPdf({
+                    code: m.data!.code,
+                    trackingToken: m.data!.trackingToken,
+                    productName: productName.trim(),
+                    manufacturerName: manufacturerName.trim() || null,
+                    barcode: barcode.trim() || null,
+                    description: description.trim(),
+                    region: region.trim() || null,
+                    latitude: coords?.lat ?? null,
+                    longitude: coords?.lng ?? null,
+                    hasPhoto: !!image,
+                    status: "submitted",
+                  });
+                  doc.save(`scanova-complaint-${m.data!.code}.pdf`);
+                }}
+              >
+                <Download className="size-4" />
+                <span className="ml-1.5">Download PDF</span>
+              </Button>
+              <Button asChild variant="outline">
                 <Link to="/track" search={{ token: m.data.trackingToken }}>
                   Track this report
                 </Link>
               </Button>
-              <Button variant="outline" onClick={() => m.reset()}>
+              <Button variant="ghost" onClick={() => m.reset()}>
                 File another
               </Button>
             </div>

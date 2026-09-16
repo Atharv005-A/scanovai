@@ -2,17 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ClipboardList, Plus, RefreshCw } from "lucide-react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+
+import { ChartFrame, TrendArea, CategoryBars } from "@/components/charts";
+
 
 import { inspectorDashboard } from "@/lib/analytics.functions";
 import { useAuth } from "@/hooks/use-auth";
@@ -131,46 +123,22 @@ function InspectorDashboard() {
             <CardTitle className="text-lg">Last 30 days</CardTitle>
             <CardDescription>Inspections you recorded, by outcome.</CardDescription>
           </CardHeader>
-          <CardContent className="h-72">
-            {q.isLoading ? (
-              <Skeleton className="h-full w-full" />
-            ) : (d?.trend ?? []).length === 0 ? (
-              <Empty>No inspections recorded in this window yet.</Empty>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={d?.trend ?? []}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={(v: string) => v.slice(5)} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="total" name="Total" stroke="#2471a3" strokeWidth={2} dot={false} />
-                  <Line
-                    type="monotone"
-                    dataKey="compliant"
-                    name="Compliant"
-                    stroke="#1f9d55"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="non_compliant"
-                    name="Non-compliant"
-                    stroke="#c0392b"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="review"
-                    name="Needs review"
-                    stroke="#d68910"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
+          <CardContent>
+            <ChartFrame
+              loading={q.isLoading}
+              empty={(d?.trend ?? []).length === 0}
+              emptyText="No inspections recorded in this window yet."
+            >
+              <TrendArea
+                data={d?.trend ?? []}
+                series={[
+                  { key: "total", name: "Total", color: "var(--chart-4)" },
+                  { key: "compliant", name: "Compliant", color: "var(--success)" },
+                  { key: "non_compliant", name: "Non-compliant", color: "var(--destructive)" },
+                  { key: "review", name: "Needs review", color: "var(--warning)" },
+                ]}
+              />
+            </ChartFrame>
           </CardContent>
         </Card>
 
@@ -179,30 +147,24 @@ function InspectorDashboard() {
             <CardTitle className="text-lg">By category</CardTitle>
             <CardDescription>What kind of packages you inspected.</CardDescription>
           </CardHeader>
-          <CardContent className="h-72">
-            {q.isLoading ? (
-              <Skeleton className="h-full w-full" />
-            ) : (d?.categories ?? []).length === 0 ? (
-              <Empty>No categories to show yet.</Empty>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={(d?.categories ?? []).map((c) => ({
-                    name: CATEGORY_LABELS[c.label] ?? c.label,
-                    count: c.count,
-                  }))}
-                >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-15} height={50} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Bar dataKey="count" name="Inspections" fill="#2471a3" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
+          <CardContent>
+            <ChartFrame
+              loading={q.isLoading}
+              empty={(d?.categories ?? []).length === 0}
+              emptyText="No categories to show yet."
+            >
+              <CategoryBars
+                data={(d?.categories ?? []).map((c) => ({
+                  label: CATEGORY_LABELS[c.label] ?? c.label,
+                  value: c.count,
+                }))}
+                name="Inspections"
+              />
+            </ChartFrame>
           </CardContent>
         </Card>
       </div>
+
 
       <Card>
         <CardHeader>
