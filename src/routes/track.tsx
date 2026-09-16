@@ -122,6 +122,28 @@ function TrackPage() {
                 </ol>
               </div>
             )}
+
+            <Button
+              variant="outline"
+              onClick={() => {
+                const doc = buildComplaintPdf({
+                  code: String(complaint["complaint_code"] ?? ""),
+                  trackingToken: token.trim(),
+                  productName: String(complaint["product_name"] ?? ""),
+                  description: String(complaint["description"] ?? "See the progress notes below."),
+                  filedAt: (complaint["created_at"] as string | null) ?? null,
+                  updatedAt: (complaint["updated_at"] as string | null) ?? null,
+                  status: (complaint["status"] as string | null) ?? null,
+                  priority: (complaint["priority"] as string | null) ?? null,
+                  resolutionNote: (complaint["resolution_note"] as string | null) ?? null,
+                  updates,
+                });
+                doc.save(`scanova-complaint-${String(complaint["complaint_code"] ?? "record")}.pdf`);
+              }}
+            >
+              <Download className="size-4" />
+              <span className="ml-1.5">Download PDF</span>
+            </Button>
           </CardContent>
         </Card>
       )}
