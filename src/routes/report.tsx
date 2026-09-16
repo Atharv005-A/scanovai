@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Copy, Loader2, MapPin, Upload } from "lucide-react";
+import { CheckCircle2, Copy, Download, Loader2, MapPin, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { PublicShell } from "@/components/public-shell";
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { fileToJpegBase64, base64Preview } from "@/lib/image-file";
 import { submitPublicComplaint } from "@/lib/public.functions";
+import { buildComplaintPdf } from "@/lib/public-pdf";
 
 export const Route = createFileRoute("/report")({
   ssr: false,
