@@ -66,6 +66,7 @@ export function ChartFrame({
         <p className="px-4 text-center text-sm text-muted-foreground">{emptyText}</p>
       </div>
     );
+  if (bare) return <div className={`${height} w-full`}>{children}</div>;
   return (
     <div className={`${height} w-full`}>
       <ResponsiveContainer width="100%" height="100%">
