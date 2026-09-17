@@ -254,13 +254,6 @@ function InspectorDashboard() {
   );
 }
 
-function Empty({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex h-full items-center justify-center rounded-md border border-dashed border-border">
-      <p className="text-sm text-muted-foreground">{children}</p>
-    </div>
-  );
-}
 
 function Stat({
   label,
