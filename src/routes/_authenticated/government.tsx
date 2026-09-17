@@ -278,38 +278,21 @@ function GovernmentDashboard() {
             <CardTitle className="text-lg">Enforcement trend</CardTitle>
             <CardDescription>Inspections per day in the selected window.</CardDescription>
           </CardHeader>
-          <CardContent className="h-72">
-            {q.isLoading ? (
-              <Skeleton className="h-full w-full" />
-            ) : (d?.trend ?? []).length === 0 ? (
-              <Empty>No inspections in this window.</Empty>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={d?.trend ?? []}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={(v: string) => v.slice(5)} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="total" name="Total" stroke="#2471a3" strokeWidth={2} dot={false} />
-                  <Line
-                    type="monotone"
-                    dataKey="compliant"
-                    name="Compliant"
-                    stroke="#1f9d55"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="non_compliant"
-                    name="Non-compliant"
-                    stroke="#c0392b"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
+          <CardContent>
+            <ChartFrame
+              loading={q.isLoading}
+              empty={(d?.trend ?? []).length === 0}
+              emptyText="No inspections in this window."
+            >
+              <TrendArea
+                data={d?.trend ?? []}
+                series={[
+                  { key: "total", name: "Total", color: "var(--chart-4)" },
+                  { key: "compliant", name: "Compliant", color: "var(--success)" },
+                  { key: "non_compliant", name: "Non-compliant", color: "var(--destructive)" },
+                ]}
+              />
+            </ChartFrame>
           </CardContent>
         </Card>
 
@@ -318,32 +301,22 @@ function GovernmentDashboard() {
             <CardTitle className="text-lg">Outcome mix</CardTitle>
             <CardDescription>How inspections concluded.</CardDescription>
           </CardHeader>
-          <CardContent className="h-72">
-            {q.isLoading ? (
-              <Skeleton className="h-full w-full" />
-            ) : (d?.resultDistribution ?? []).length === 0 ? (
-              <Empty>No outcomes to show.</Empty>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={(d?.resultDistribution ?? []).map((r) => ({
-                      name: OVERALL_LABELS[r.label] ?? r.label,
-                      value: r.count,
-                    }))}
-                    dataKey="value"
-                    nameKey="name"
-                    outerRadius={90}
-                    label
-                  >
-                    {(d?.resultDistribution ?? []).map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
+          <CardContent>
+            <ChartFrame
+              loading={q.isLoading}
+              empty={(d?.resultDistribution ?? []).length === 0}
+              emptyText="No outcomes to show."
+              bare
+            >
+              <OutcomeDonut
+                totalLabel="inspections"
+                data={(d?.resultDistribution ?? []).map((r) => ({
+                  key: r.label,
+                  label: OVERALL_LABELS[r.label] ?? r.label,
+                  value: r.count,
+                }))}
+              />
+            </ChartFrame>
           </CardContent>
         </Card>
 
@@ -352,28 +325,21 @@ function GovernmentDashboard() {
             <CardTitle className="text-lg">Most-failed rules</CardTitle>
             <CardDescription>Where enforcement attention is needed, by rule number.</CardDescription>
           </CardHeader>
-          <CardContent className="h-80">
-            {q.isLoading ? (
-              <Skeleton className="h-full w-full" />
-            ) : (d?.ruleFailures ?? []).length === 0 ? (
-              <Empty>No rule failures recorded in this window.</Empty>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={d?.ruleFailures ?? []} layout="vertical" margin={{ left: 8, right: 16 }}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
-                  <YAxis
-                    type="category"
-                    dataKey="label"
-                    width={150}
-                    tick={{ fontSize: 10 }}
-                    tickFormatter={(v: string) => (v.length > 26 ? `${v.slice(0, 26)}…` : v)}
-                  />
-                  <Tooltip />
-                  <Bar dataKey="count" name="Findings" fill="#c0392b" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
+          <CardContent>
+            <ChartFrame
+              loading={q.isLoading}
+              empty={(d?.ruleFailures ?? []).length === 0}
+              emptyText="No rule failures recorded in this window."
+              height="h-80"
+            >
+              <RankedBars
+                data={d?.ruleFailures ?? []}
+                valueKey="count"
+                name="Findings"
+                color="var(--destructive)"
+                labelWidth={180}
+              />
+            </ChartFrame>
           </CardContent>
         </Card>
 
@@ -382,30 +348,25 @@ function GovernmentDashboard() {
             <CardTitle className="text-lg">Categories</CardTitle>
             <CardDescription>Commodity groups inspected.</CardDescription>
           </CardHeader>
-          <CardContent className="h-80">
-            {q.isLoading ? (
-              <Skeleton className="h-full w-full" />
-            ) : (d?.categories ?? []).length === 0 ? (
-              <Empty>No categories to show.</Empty>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={(d?.categories ?? []).slice(0, 10).map((x) => ({
-                    name: CATEGORY_LABELS[x.label] ?? x.label,
-                    count: x.count,
-                  }))}
-                >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-15} height={54} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Bar dataKey="count" name="Inspections" fill="#2471a3" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
+          <CardContent>
+            <ChartFrame
+              loading={q.isLoading}
+              empty={(d?.categories ?? []).length === 0}
+              emptyText="No categories to show."
+              height="h-80"
+            >
+              <CategoryBars
+                data={(d?.categories ?? []).slice(0, 10).map((x) => ({
+                  label: CATEGORY_LABELS[x.label] ?? x.label,
+                  value: x.count,
+                }))}
+                name="Inspections"
+              />
+            </ChartFrame>
           </CardContent>
         </Card>
       </div>
+
 
       <div className="grid gap-6 lg:grid-cols-3">
         <ListCard
