@@ -4,14 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { MapPin, RefreshCw } from "lucide-react";
 import {
-  Bar,
-  BarChart,
   CartesianGrid,
-  Cell,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Scatter,
   ScatterChart,
@@ -20,6 +13,9 @@ import {
   YAxis,
   ZAxis,
 } from "recharts";
+
+import { ChartFrame, TrendArea, RankedBars, CategoryBars, OutcomeDonut } from "@/components/charts";
+
 
 import { authorityDashboard, analyticsFilterOptions } from "@/lib/analytics.functions";
 import { useAuth } from "@/hooks/use-auth";
