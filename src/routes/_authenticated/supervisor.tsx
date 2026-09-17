@@ -2,18 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ClipboardCheck, RefreshCw } from "lucide-react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+
+import { ChartFrame, TrendArea, RankedBars } from "@/components/charts";
+
 
 import { supervisorDashboard } from "@/lib/analytics.functions";
 import { useAuth } from "@/hooks/use-auth";
@@ -151,46 +142,21 @@ function SupervisorDashboard() {
             <CardTitle className="text-lg">Last 30 days</CardTitle>
             <CardDescription>Inspections recorded across your team, by outcome.</CardDescription>
           </CardHeader>
-          <CardContent className="h-72">
-            {q.isLoading ? (
-              <Skeleton className="h-full w-full" />
-            ) : (d?.trend ?? []).length === 0 ? (
-              <Empty>No inspections in this window yet.</Empty>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={d?.trend ?? []}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={(v: string) => v.slice(5)} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="compliant"
-                    name="Compliant"
-                    stroke="hsl(var(--chart-2))"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="nonCompliant"
-                    name="Non-compliant"
-                    stroke="hsl(var(--destructive))"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="review"
-                    name="Needs review"
-                    stroke="hsl(var(--chart-4))"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
+          <CardContent>
+            <ChartFrame
+              loading={q.isLoading}
+              empty={(d?.trend ?? []).length === 0}
+              emptyText="No inspections in this window yet."
+            >
+              <TrendArea
+                data={d?.trend ?? []}
+                series={[
+                  { key: "compliant", name: "Compliant", color: "var(--success)" },
+                  { key: "nonCompliant", name: "Non-compliant", color: "var(--destructive)" },
+                  { key: "review", name: "Needs review", color: "var(--warning)" },
+                ]}
+              />
+            </ChartFrame>
           </CardContent>
         </Card>
 
@@ -199,22 +165,14 @@ function SupervisorDashboard() {
             <CardTitle className="text-lg">Officer output</CardTitle>
             <CardDescription>Inspections recorded per officer in this window.</CardDescription>
           </CardHeader>
-          <CardContent className="h-72">
-            {q.isLoading ? (
-              <Skeleton className="h-full w-full" />
-            ) : (d?.inspectors ?? []).length === 0 ? (
-              <Empty>No officer activity yet.</Empty>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={d?.inspectors ?? []} layout="vertical" margin={{ left: 24 }}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
-                  <YAxis type="category" dataKey="label" width={120} tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Bar dataKey="value" name="Inspections" fill="hsl(var(--chart-1))" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
+          <CardContent>
+            <ChartFrame
+              loading={q.isLoading}
+              empty={(d?.inspectors ?? []).length === 0}
+              emptyText="No officer activity yet."
+            >
+              <RankedBars data={d?.inspectors ?? []} name="Inspections" color="var(--chart-4)" labelWidth={140} />
+            </ChartFrame>
           </CardContent>
         </Card>
       </div>
@@ -224,24 +182,23 @@ function SupervisorDashboard() {
           <CardTitle className="text-lg">Most common failures</CardTitle>
           <CardDescription>Which declaration rules fail most often in this window.</CardDescription>
         </CardHeader>
-        <CardContent className="h-80">
-          {q.isLoading ? (
-            <Skeleton className="h-full w-full" />
-          ) : (d?.ruleFailures ?? []).length === 0 ? (
-            <Empty>No failed checks recorded yet.</Empty>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={d?.ruleFailures ?? []} layout="vertical" margin={{ left: 40 }}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
-                <YAxis type="category" dataKey="label" width={200} tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Bar dataKey="value" name="Failures" fill="hsl(var(--destructive))" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
+        <CardContent>
+          <ChartFrame
+            loading={q.isLoading}
+            empty={(d?.ruleFailures ?? []).length === 0}
+            emptyText="No failed checks recorded yet."
+            height="h-80"
+          >
+            <RankedBars
+              data={d?.ruleFailures ?? []}
+              name="Failures"
+              color="var(--destructive)"
+              labelWidth={210}
+            />
+          </ChartFrame>
         </CardContent>
       </Card>
+
 
       <AuthorityComplaintPanel />
     </div>
@@ -281,8 +238,3 @@ function Stat({
   );
 }
 
-function Empty({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex h-full items-center justify-center text-sm text-muted-foreground">{children}</div>
-  );
-}
