@@ -4,6 +4,7 @@
  * All colours come from the semantic tokens in src/styles.css so the charts
  * follow the theme (including dark mode) instead of hardcoded hex values.
  */
+import type { ReactNode } from "react";
 import {
   Area,
   AreaChart,
@@ -51,7 +52,7 @@ export function ChartFrame({
   empty?: boolean;
   emptyText: string;
   height?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   if (loading) return <Skeleton className={`${height} w-full`} />;
   if (empty)
