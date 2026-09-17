@@ -46,12 +46,15 @@ export function ChartFrame({
   empty,
   emptyText,
   height = "h-72",
+  bare,
   children,
 }: {
   loading?: boolean;
   empty?: boolean;
   emptyText: string;
   height?: string;
+  /** Set when the child manages its own sizing (e.g. OutcomeDonut). */
+  bare?: boolean;
   children: ReactNode;
 }) {
   if (loading) return <Skeleton className={`${height} w-full`} />;
