@@ -22,15 +22,18 @@ export async function auditLog(
     authority_id?: string | null;
   },
 ) {
-  const { error } = await supabase.from("audit_logs").insert({
-    actor_id: actor,
-    action,
-    entity,
-    entity_id: entityId,
-    previous_value: extra?.previous_value ?? null,
-    new_value: extra?.new_value ?? null,
-    reason: extra?.reason ?? null,
-    ...(extra?.authority_id ? { authority_id: extra.authority_id } : {}),
+  // Audit rows are written through a controlled database function: it stamps
+  // the actor from the caller's own session, so a signed-in user cannot forge
+  // an entry for somebody else or for an authority that is not theirs.
+  const { error } = await supabase.rpc("write_audit_log", {
+    _action: action,
+    _entity: entity,
+    _entity_id: entityId,
+    _previous: (extra?.previous_value ?? null) as never,
+    _new: (extra?.new_value ?? null) as never,
+    _reason: extra?.reason ?? null,
+    _authority: extra?.authority_id ?? null,
+    _actor: actor,
   });
   if (error) console.error("[audit] insert failed", action, error);
 }

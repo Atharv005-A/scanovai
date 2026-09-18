@@ -35,8 +35,8 @@ export const publicBarcodeLookup = createServerFn({ method: "POST" })
     const barcode = normaliseBarcode(data.barcode);
     if (!barcode)
       return { rateLimited: false as const, message: "That barcode does not look valid.", product: null };
-    const sb = publicSupabase();
-    const { data: payload } = await sb.rpc("public_barcode_lookup", { _barcode: barcode });
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: payload } = await supabaseAdmin.rpc("public_barcode_lookup", { _barcode: barcode });
     if (!payload) {
       return {
         rateLimited: false as const,
@@ -110,8 +110,9 @@ export const publicPackageCheck = createServerFn({ method: "POST" })
     const config = ocrConfigStatus();
     const ocr = await runServerSideOcr(decoded.map((d) => ({ content: d.base64, side: d.side })));
 
-    const sb = publicSupabase();
-    const product = barcode ? await registryByBarcode(sb as never, barcode) : null;
+    // The registry projection runs through the trusted server-side client: the
+    // lookup function is no longer executable by anonymous database callers.
+    const product = barcode ? await registryByBarcode(supabaseAdmin as never, barcode) : null;
 
     // Store the scan and its evidence so authorities can see mismatch signals.
     const token = crypto.randomUUID();
@@ -201,6 +202,7 @@ export const publicPackageCheck = createServerFn({ method: "POST" })
 
     // Preliminary rule reading — evaluated in memory, never stored as an
     // official compliance result.
+    const sb = publicSupabase();
     const { data: version } = await sb
       .from("rule_versions")
       .select("id, version_label, source_document")
@@ -506,8 +508,8 @@ export const trackPublicComplaint = createServerFn({ method: "POST" })
     const limit = await rateLimit("public_track", who, 40, 3600);
     if (!limit.allowed) throw new Error(limit.message);
 
-    const sb = publicSupabase();
-    const { data: payload } = await sb.rpc("track_complaint", { _token: data.token });
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: payload } = await supabaseAdmin.rpc("track_complaint", { _token: data.token });
     if (!payload) return { complaint: null };
     return { complaint: payload as Record<string, any> };
   });
