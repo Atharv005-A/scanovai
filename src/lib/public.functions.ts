@@ -35,8 +35,8 @@ export const publicBarcodeLookup = createServerFn({ method: "POST" })
     const barcode = normaliseBarcode(data.barcode);
     if (!barcode)
       return { rateLimited: false as const, message: "That barcode does not look valid.", product: null };
-    const sb = publicSupabase();
-    const { data: payload } = await sb.rpc("public_barcode_lookup", { _barcode: barcode });
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: payload } = await supabaseAdmin.rpc("public_barcode_lookup", { _barcode: barcode });
     if (!payload) {
       return {
         rateLimited: false as const,
@@ -507,8 +507,8 @@ export const trackPublicComplaint = createServerFn({ method: "POST" })
     const limit = await rateLimit("public_track", who, 40, 3600);
     if (!limit.allowed) throw new Error(limit.message);
 
-    const sb = publicSupabase();
-    const { data: payload } = await sb.rpc("track_complaint", { _token: data.token });
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: payload } = await supabaseAdmin.rpc("track_complaint", { _token: data.token });
     if (!payload) return { complaint: null };
     return { complaint: payload as Record<string, any> };
   });
