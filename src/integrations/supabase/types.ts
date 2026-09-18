@@ -2141,6 +2141,7 @@ export type Database = {
         Args: { _amendment_id: string }
         Returns: Json
       }
+      can_request_role: { Args: { _authority: string }; Returns: boolean }
       can_view_authority_request: {
         Args: { _request_id: string }
         Returns: boolean
@@ -2200,6 +2201,19 @@ export type Database = {
         Returns: Json
       }
       track_complaint: { Args: { _token: string }; Returns: Json }
+      write_audit_log: {
+        Args: {
+          _action: string
+          _actor?: string
+          _authority?: string
+          _entity: string
+          _entity_id?: string
+          _new?: Json
+          _previous?: Json
+          _reason?: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role:
