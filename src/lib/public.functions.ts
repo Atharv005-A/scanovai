@@ -110,8 +110,9 @@ export const publicPackageCheck = createServerFn({ method: "POST" })
     const config = ocrConfigStatus();
     const ocr = await runServerSideOcr(decoded.map((d) => ({ content: d.base64, side: d.side })));
 
-    const sb = publicSupabase();
-    const product = barcode ? await registryByBarcode(sb as never, barcode) : null;
+    // The registry projection runs through the trusted server-side client: the
+    // lookup function is no longer executable by anonymous database callers.
+    const product = barcode ? await registryByBarcode(supabaseAdmin as never, barcode) : null;
 
     // Store the scan and its evidence so authorities can see mismatch signals.
     const token = crypto.randomUUID();
