@@ -202,6 +202,7 @@ export const publicPackageCheck = createServerFn({ method: "POST" })
 
     // Preliminary rule reading — evaluated in memory, never stored as an
     // official compliance result.
+    const sb = publicSupabase();
     const { data: version } = await sb
       .from("rule_versions")
       .select("id, version_label, source_document")
