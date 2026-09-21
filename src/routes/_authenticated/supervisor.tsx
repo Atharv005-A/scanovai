@@ -152,7 +152,7 @@ function SupervisorDashboard() {
                 data={d?.trend ?? []}
                 series={[
                   { key: "compliant", name: "Compliant", color: "var(--success)" },
-                  { key: "nonCompliant", name: "Non-compliant", color: "var(--destructive)" },
+                  { key: "non_compliant", name: "Non-compliant", color: "var(--destructive)" },
                   { key: "review", name: "Needs review", color: "var(--warning)" },
                 ]}
               />
@@ -171,7 +171,13 @@ function SupervisorDashboard() {
               empty={(d?.inspectors ?? []).length === 0}
               emptyText="No officer activity yet."
             >
-              <RankedBars data={d?.inspectors ?? []} name="Inspections" color="var(--chart-4)" labelWidth={140} />
+              <RankedBars
+                data={d?.inspectors ?? []}
+                valueKey="count"
+                name="Inspections"
+                color="var(--chart-4)"
+                labelWidth={140}
+              />
             </ChartFrame>
           </CardContent>
         </Card>
