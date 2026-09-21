@@ -152,7 +152,7 @@ function SupervisorDashboard() {
                 data={d?.trend ?? []}
                 series={[
                   { key: "compliant", name: "Compliant", color: "var(--success)" },
-                  { key: "nonCompliant", name: "Non-compliant", color: "var(--destructive)" },
+                  { key: "non_compliant", name: "Non-compliant", color: "var(--destructive)" },
                   { key: "review", name: "Needs review", color: "var(--warning)" },
                 ]}
               />
