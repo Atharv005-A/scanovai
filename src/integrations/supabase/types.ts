@@ -2175,6 +2175,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      inspection_is_open: { Args: { _inspection_id: string }; Returns: boolean }
       is_authority_staff: { Args: { _authority_id: string }; Returns: boolean }
       is_gov_staff: { Args: { _user_id: string }; Returns: boolean }
       my_authority_id: { Args: never; Returns: string }
